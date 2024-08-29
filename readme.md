@@ -2,7 +2,7 @@
 
 ## **Objective**
 
-The goal of this group assignment (maximum of three per group) is to design and implement two APIs that interact with a MongoDB database. One API will be a RESTful API, and the other will be built using GraphQL. Both APIs will manage an Industry Management System (IMS) where users can perform CRUD (Create, Read, Update, Delete) operations on products, manufacturers, and their contacts. The data will be modeled using nested documents within MongoDB.
+The goal of this group assignment (maximum of three per group) is to design and implement two APIs that interact with a MongoDB database. One API will be a RESTful API, and the other will be built using GraphQL. Both APIs will manage an Industry Management System (IMS) where users can perform CRUD (Create, Read, Update, Delete) operations on products, manufacturers, and their contacts. The data will be modeled using nested documents within MongoDB. Both APIs will essentially do the same thing, but the aim is to get an idea of their differences.
 
 The requirements can freely be expanded on with your own ideas.
 
@@ -121,7 +121,7 @@ The requirements can freely be expanded on with your own ideas.
 
 ## **Submission**
 
-- Submit your group's code as a GitHub repository.
+- Submit your group's code as a GitHub repository
 - Final date for submission: **Wednesday 25th of September**
 - On 25th of September every group will also do a short live presentation (max 10 minutes)
 
