@@ -18,7 +18,7 @@ const ManufactureSchema = new Schema({
 
 const ProductSchema = new Schema({
   name: String,
-  sku: Number,
+  sku: Number, // Stock Keeping Unit
   description: String,
   price: Number,
   category: String,

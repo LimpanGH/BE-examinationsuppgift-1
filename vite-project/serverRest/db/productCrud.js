@@ -5,4 +5,8 @@ const createProduct = async (product) => {
   return newProduct.save();
 };
 
-module.exports = { createProduct };
+const deleteProduct = async (id) => {
+  return ProductModel.findByIdAndDelete(id);
+};
+
+module.exports = { createProduct, deleteProduct };
