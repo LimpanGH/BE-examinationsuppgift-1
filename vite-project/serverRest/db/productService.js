@@ -1,4 +1,4 @@
-const ProductModel = require('./models/productModel');
+const ProductModel = require("./models/productModel");
 
 const createProduct = async (product) => {
   const newProduct = new ProductModel(product);
@@ -9,4 +9,8 @@ const deleteProduct = async (id) => {
   return ProductModel.findByIdAndDelete(id);
 };
 
-module.exports = { createProduct, deleteProduct };
+const findProductById = async (id) => {
+  return ProductModel.findById(id);
+};
+
+module.exports = { createProduct, deleteProduct, findProductById };
