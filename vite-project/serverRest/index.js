@@ -42,12 +42,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const productsRouter = require("./routes/productRoute")
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
+
+app.use("/products", productsRouter);
 
 // async function connectToDatabase() {
 //   try {
@@ -77,5 +80,5 @@ mongoose
 console.log();
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port http://localhost:${port}`);
 });
