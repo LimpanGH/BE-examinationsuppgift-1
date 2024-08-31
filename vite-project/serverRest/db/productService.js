@@ -6,7 +6,7 @@ const createProduct = async (product) => {
 };
 
 const getProducts = async (product) => {
-  return ProductModel.find()
-}
+  return ProductModel.find();
+};
 
 module.exports = { createProduct, getProducts };
