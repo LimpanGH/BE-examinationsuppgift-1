@@ -9,4 +9,12 @@ const getProducts = async (product) => {
   return ProductModel.find();
 };
 
-module.exports = { createProduct, getProducts };
+const deleteProduct = async (id) => {
+  return ProductModel.findByIdAndDelete(id);
+};
+
+const findProductById = async (id) => {
+  return ProductModel.findById(id);
+};
+
+module.exports = { createProduct, getProducts, deleteProduct, findProductById };
