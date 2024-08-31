@@ -5,4 +5,8 @@ const createProduct = async (product) => {
   return newProduct.save();
 };
 
-module.exports = { createProduct };
+const getProducts = async (product) => {
+  return ProductModel.find()
+}
+
+module.exports = { createProduct, getProducts };

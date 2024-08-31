@@ -1,17 +1,26 @@
+//Load environment variables
 require('dotenv').config();
+
+// Import required packages
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+
+//Import routes
 const productsRouter = require('./routes/productRoute');
 
+// Initialize express app
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(cors());
+// Middleware
+app.use(express.json()); // Parse JSON boides
+app.use(cors()); // Enable cors
 
+// Routes
 app.use('/products', productsRouter);
 
+// MongoDB connection URI
 const uri = process.env.MONGODB_URI;
 
 mongoose
