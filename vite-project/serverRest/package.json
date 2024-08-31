@@ -17,7 +17,11 @@
     "mongoose": "^8.6.0"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@faker-js/faker": "^8.4.1",
+=======
+    "faker": "^6.6.6",
+>>>>>>> 95b04d4 (readded Anders changes and added functionality to search by Id in browser)
     "nodemon": "^3.1.4"
   }
 }
