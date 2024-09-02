@@ -41,6 +41,10 @@ const getStockValueByManufacturerId = async (manufacturerId) => {
   return stockValue;
 };
 
+const getManufacturers = async () => {
+  return ProductModel.find({ manufacturer: { $exists: true } }, { "manufacturer.name": true, _id: false });
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -49,4 +53,5 @@ module.exports = {
   updateProduct,
   getTotalStockValue,
   getStockValueByManufacturerId,
+  getManufacturers,
 };

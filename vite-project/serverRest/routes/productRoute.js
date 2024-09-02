@@ -8,7 +8,18 @@ const {
   updateProduct,
   getTotalStockValue,
   getStockValueByManufacturerId,
+  getManufacturers,
 } = require("../../serverRest/db/productService");
+
+router.get("/manufacturers", async (req, res) => {
+  try {
+    const manufacturers = await getManufacturers();
+    res.status(200).json(manufacturers);
+  } catch (error) {
+    console.error("Error getting manufacturers", error);
+    res.status(500).json({ error: "Failed to get manufacturers" });
+  }
+});
 
 router.get("/stock-value/:manufacturerId", async (req, res) => {
   console.log("GET /api/products/stock-value/:manufacturerId");
