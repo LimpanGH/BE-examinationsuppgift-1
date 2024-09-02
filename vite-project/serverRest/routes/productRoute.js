@@ -41,8 +41,9 @@ router.get("/total-stock-value", async (req, res) => {
   }
 });
 
-// GET products by ID
+// GET product by ID
 router.get("/:id", async (req, res) => {
+  console.log("GET /api/products/:id");
   try {
     const id = req.params.id;
     if (!id) {
@@ -104,6 +105,7 @@ router.put("/:id", async (req, res) => {
 
 //DELETE product by ID
 router.delete("/:id", async (req, res) => {
+  console.log("DELETE /api/products/:id");
   try {
     const id = req.params.id;
     if (!id) {
@@ -117,7 +119,7 @@ router.delete("/:id", async (req, res) => {
       return;
     }
     await deleteProduct(id);
-    res.status(204).send();
+    res.status(204).send(`Product deleted with id: ${id}`);
   } catch (error) {
     res.status(500).send(error.message);
   }
