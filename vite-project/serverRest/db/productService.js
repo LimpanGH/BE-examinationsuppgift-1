@@ -1,4 +1,4 @@
-const ProductModel = require("./models/productModel");
+const ProductModel = require('./models/productModel');
 
 const createProduct = async (product) => {
   const newProduct = new ProductModel(product);
@@ -7,6 +7,18 @@ const createProduct = async (product) => {
 
 const getProducts = async (product) => {
   return ProductModel.find();
+};
+
+const getLowStock = async () => {
+  const products = await ProductModel.find({ amountInStock: { $lt: 10 } }).exec();
+  console.log('Low stock products:', products);
+  return products;
+};
+
+const getCriticalStock = async () => {
+  const products = await ProductModel.find({ amountInStock: { $lt: 3 } }).exec();
+  console.log('Critical stock products:', products);
+  return products;
 };
 
 const deleteProduct = async (id) => {
@@ -34,10 +46,7 @@ const getStockValueByManufacturerId = async (manufacturerId) => {
   const products = await getProducts();
   const stockValue = products
     .filter((product) => product.manufacturer._id.toString() === manufacturerId)
-    .reduce(
-      (total, product) => total + product.price * product.amountInStock,
-      0
-    );
+    .reduce((total, product) => total + product.price * product.amountInStock, 0);
   return stockValue;
 };
 
@@ -48,6 +57,8 @@ const getManufacturers = async () => {
 module.exports = {
   createProduct,
   getProducts,
+  getCriticalStock,
+  getLowStock,
   deleteProduct,
   findProductById,
   updateProduct,
