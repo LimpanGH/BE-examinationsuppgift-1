@@ -1,22 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { createProduct, deleteProduct,
-  findProductById,getProducts } = require('../../serverRest/db/productService');
+const {
+  createProduct,
+  deleteProduct,
+  // findProductById,getProducts } = require('../../serverRest/db/productService');
+  findProductById,
+  getProducts,
+} = require('../../serverRest/db/productService');
 
 // GET all products
 
 // GET products by ID
-router.get("/:id", async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) {
-      res.status(400).send("ID is required");
+      res.status(400).send('ID is required');
       return;
     }
 
     const product = await findProductById(id);
     if (!product) {
-      res.status(404).send("Product not found");
+      res.status(404).send('Product not found');
       return;
     }
     res.status(200).json(product);
@@ -26,7 +31,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST
-router.post("/", async (request, response) => {
+router.post('/', async (request, response) => {
   const product = request.body;
   const newProduct = await createProduct(product);
   response.status(201).json(newProduct);
@@ -45,17 +50,17 @@ router.get('/', async (req, res) => {
 });
 
 //DELETE product by ID
-router.delete("/:id", async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) {
-      res.status(400).send("ID is required");
+      res.status(400).send('ID is required');
       return;
     }
 
     const product = await findProductById(id);
     if (!product) {
-      res.status(404).send("Product not found");
+      res.status(404).send('Product not found');
       return;
     }
     await deleteProduct(id);
@@ -66,17 +71,17 @@ router.delete("/:id", async (req, res) => {
 });
 
 //DELETE product by ID
-router.delete("/:id", async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) {
-      res.status(400).send("ID is required");
+      res.status(400).send('ID is required');
       return;
     }
 
     const product = await findProductById(id);
     if (!product) {
-      res.status(404).send("Product not found");
+      res.status(404).send('Product not found');
       return;
     }
     await deleteProduct(id);
@@ -127,4 +132,5 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+// module.exports = router;
+export default router;
