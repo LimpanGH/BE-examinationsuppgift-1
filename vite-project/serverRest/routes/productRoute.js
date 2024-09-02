@@ -52,16 +52,7 @@ router.get("/total-stock-value", async (req, res) => {
   }
 });
 
-// // GET products by ID
-// router.get('/:id', async (req, res) => {
-//   try {
-//     const criticalStock = await getCriticalStock();
-//     res.status(200).json(criticalStock);
-//   } catch (error) {
-//     console.error('Error getting products', error);
-//     res.status(500).json({ error: 'Failed to get product' });
-//   }
-// });
+
 
 // GET product by ID
 router.get("/:id", async (req, res) => {
