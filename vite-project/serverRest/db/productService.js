@@ -10,13 +10,13 @@ const getProducts = async (product) => {
 };
 
 const getLowStock = async () => {
-  const products = await ProductModel.find({ amountInStock: { $lt: 10 } }).exec();
+  const products = await ProductModel.find({ amountInStock: { $lt: 30 } });
   console.log('Low stock products:', products);
   return products;
 };
 
 const getCriticalStock = async () => {
-  const products = await ProductModel.find({ amountInStock: { $lt: 3 } }).exec();
+  const products = await ProductModel.find({ amountInStock: { $lt: 3 } });
   console.log('Critical stock products:', products);
   return products;
 };
@@ -30,8 +30,14 @@ const findProductById = async (id) => {
 };
 
 const updateProduct = async (id, product) => {
-  return ProductModel.findByIdAndUpdate;
+  /* const updatedProduct = await ProductModel(findProductById(id)) */
+  return ProductModel.findByIdAndUpdate(id, product, { new: true });
 };
+
+/* const createProduct = async (product) => {
+  const newProduct = new ProductModel(product);
+  return newProduct.save();
+}; */
 
 const getTotalStockValue = async () => {
   const products = await getProducts();

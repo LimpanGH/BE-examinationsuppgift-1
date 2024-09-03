@@ -13,7 +13,6 @@ const {
   getLowStock,
 } = require('../../serverRest/db/productService');
 
-
 // Get /manufacturers
 router.get('/manufacturers', async (req, res) => {
   try {
@@ -55,10 +54,21 @@ router.get('/total-stock-value', async (req, res) => {
 });
 
 // GET /products/critical-stock
-router.get('/:id', async (req, res) => {
+router.get('/critical-stock', async (req, res) => {
   try {
     const criticalStock = await getCriticalStock();
     res.status(200).json(criticalStock);
+  } catch (error) {
+    console.error('Error getting products', error);
+    res.status(500).json({ error: 'Failed to get product' });
+  }
+});
+
+// GET /products/low-stock
+router.get('/low-stock', async (req, res) => {
+  try {
+    const lowStock = await getLowStock();
+    res.status(200).json(lowStock);
   } catch (error) {
     console.error('Error getting products', error);
     res.status(500).json({ error: 'Failed to get product' });
@@ -71,29 +81,17 @@ router.get('/:id', async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) {
-      res.status(400).send('ID is required');
-      return;
+      return res.status(400).send('ID is required');
     }
 
     const product = await findProductById(id);
     if (!product) {
-      res.status(404).send('Product not found');
-      return;
+      return res.status(404).send('Product not found');
     }
     res.status(200).json(product);
   } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// GET /products/low-stock
-router.get('/low-stock', async (req, res) => {
-  try {
-    const lowStock = await getLowStock();
-    res.status(200).json(lowStock);
-  } catch (error) {
-    console.error('Error getting products', error);
-    res.status(500).json({ error: 'Failed to get product' });
+    console.error('Error fetching product by ID:', error.message);
+    res.status(500).send('An error occurred while retrieving the product');
   }
 });
 
@@ -117,6 +115,7 @@ router.post('/', async (request, response) => {
 
 //PUT - update product by ID
 router.put('/:id', async (req, res) => {
+  console.log('PUT /api/products/:id');
   try {
     const id = req.params.id;
     if (!id) {
@@ -124,15 +123,9 @@ router.put('/:id', async (req, res) => {
       return;
     }
 
-    const product = await findProductById(id);
-    if (!product) {
-      res.status(404).send('Product not found');
-      return;
-    }
-
     const updatedProduct = req.body;
     await updateProduct(id, updatedProduct);
-    res.status(204).send();
+    res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500).send(error.message);
   }
