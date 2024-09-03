@@ -1,4 +1,5 @@
-const Product = require('./models'); // Import the model, do not redeclare it.
+// const Product = require('./models'); // Import the model, do not redeclare it.
+const { Product } = require('./models'); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -53,13 +54,13 @@ const RootQuery = new GraphQLObjectType({
       type: ProductType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return ProductModel.findById(args.id);
+        return Product.findById(args.id);
       },
     },
     products: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
-        return ProductModel.find();
+        return Product.find();
       },
     },
   },
