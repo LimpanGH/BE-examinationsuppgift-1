@@ -53,19 +53,77 @@ const RootQuery = new GraphQLObjectType({
       type: ProductType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return ProductModel.findById(args.id);
+        return Product.findById(args.id);
       },
     },
     products: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
-        return ProductModel.find();
+        return Product.find();
       },
     },
   },
 });
 
+
+
+// // Define the mutation
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addProduct: {
+      type: ProductType,
+      args: {
+        name: { type: GraphQLString }, 
+        sku: { type: GraphQLInt },
+        description: { type: GraphQLString },
+        price: { type: GraphQLFloat }, 
+        category: { type: GraphQLString },
+        manufacturerName: { type: GraphQLString },
+        manufacturerCountry: { type: GraphQLString },
+        manufacturerWebsite: { type: GraphQLString },
+        manufacturerDescription: { type: GraphQLString },
+        manufacturerAddress: { type: GraphQLString },
+        contactName: { type: GraphQLString },
+        contactEmail: { type: GraphQLString },
+        contactPhone: { type: GraphQLString },
+        amountInStock: { type: GraphQLInt },
+      },
+      resolve(parent, args) {
+        const newProduct = new Product({
+          name: args.name,
+          sku: args.sku,
+          description: args.description,
+          price: args.price,
+          category: args.category,
+          manufacturer: {
+            name: args.manufacturerName,
+            country: args.manufacturerCountry,
+            website: args.manufacturerWebsite,
+            description: args.manufacturerDescription,
+            address: args.manufacturerAddress,
+            contact: {
+              name: args.contactName,
+              email: args.contactEmail,
+              phone: args.contactPhone,
+            },
+          },
+          amountInStock: args.amountInStock,
+        });
+
+        return newProduct.save();
+      },
+    },
+  },
+});
+
+
+
+
+
 module.exports = new GraphQLSchema({
   query: RootQuery,
-  // mutation: Mutation,
+   mutation: Mutation,
 });
+
+
