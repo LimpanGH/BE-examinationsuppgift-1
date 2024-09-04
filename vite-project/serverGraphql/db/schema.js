@@ -46,6 +46,14 @@ const ProductType = new GraphQLObjectType({
   },
 });
 
+const ManufacturerStockType = new GraphQLObjectType({
+  name: "ManufacturerStockValue",
+  fields: {
+    manufacturer: { type: GraphQLString },
+    totalStockValue: { type: GraphQLFloat },
+  },
+});
+
 // Define the root query
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
@@ -61,6 +69,34 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
         return Product.find();
+      },
+    },
+    totalStockValueByManufacturer: {
+      type: new GraphQLList(ManufacturerStockType),
+      resolve() {
+        return Product.aggregate([
+          // { $match: { "manufacturer.name": "Feest LLC" } },
+          {
+            $match: {
+              amountInStock: { $exists: true, $ne: null },
+            },
+          },
+          {
+            $group: {
+              _id: "$manufacturer.name",
+              totalStockValue: {
+                $sum: { $multiply: ["$amountInStock", "$price"] },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: false,
+              manufacturer: "$_id",
+              totalStockValue: 1,
+            },
+          },
+        ]);
       },
     },
     lowStockProducts: {
