@@ -99,6 +99,9 @@ const RootQuery = new GraphQLObjectType({
         ]);
       },
     },
+    lowStockProducts: {
+      type: new GraphQLList(ProductType),
+    },
   },
 });
 
