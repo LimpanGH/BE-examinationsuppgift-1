@@ -1,4 +1,4 @@
-const ProductModel = require('./models/productModel');
+const ProductModel = require("./models/productModel");
 
 const createProduct = async (product) => {
   const newProduct = new ProductModel(product);
@@ -11,13 +11,13 @@ const getProducts = async (product) => {
 
 const getLowStock = async () => {
   const products = await ProductModel.find({ amountInStock: { $lt: 30 } });
-  console.log('Low stock products:', products);
+  console.log("Low stock products:", products);
   return products;
 };
 
 const getCriticalStock = async () => {
   const products = await ProductModel.find({ amountInStock: { $lt: 3 } });
-  console.log('Critical stock products:', products);
+  console.log("Critical stock products:", products);
   return products;
 };
 
@@ -48,16 +48,33 @@ const getTotalStockValue = async () => {
   return totalStockValue;
 };
 
-const getStockValueByManufacturerId = async (manufacturerId) => {
+/* const getStockValueByManufacturerId = async (manufacturerId) => {
   const products = await getProducts();
   const stockValue = products
     .filter((product) => product.manufacturer._id.toString() === manufacturerId)
-    .reduce((total, product) => total + product.price * product.amountInStock, 0);
+    .reduce(
+      (total, product) => total + product.price * product.amountInStock,
+      0
+    );
+  return stockValue;
+}; */
+
+const getStockValueByManufacturer = async (manufacturerName) => {
+  const products = await ProductModel.find({
+    "manufacturer.name": manufacturerName,
+  });
+  const stockValue = products.reduce(
+    (total, product) => total + product.price * product.amountInStock,
+    0
+  );
   return stockValue;
 };
 
 const getManufacturers = async () => {
-  return ProductModel.find({ manufacturer: { $exists: true } }, { "manufacturer.name": true, _id: false });
+  return ProductModel.find(
+    { manufacturer: { $exists: true } },
+    { "manufacturer.name": true, _id: false }
+  );
 };
 
 module.exports = {
@@ -69,6 +86,6 @@ module.exports = {
   findProductById,
   updateProduct,
   getTotalStockValue,
-  getStockValueByManufacturerId,
+  getStockValueByManufacturer,
   getManufacturers,
 };
