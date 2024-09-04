@@ -77,6 +77,31 @@ const getManufacturers = async () => {
   );
 };
 
+const getStockValuesForAllManufacturers = async () => {
+  const stockValues = await ProductModel.aggregate([
+    {
+      $group: {
+        _id: "$manufacturer.name",
+        totalStockValue: {
+          $sum: { $multiply: ["$price", "$amountInStock"] },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        manufacturerName: "$_id",
+        totalStockValue: 1,
+      },
+    },
+  ]);
+
+  return stockValues.map(({ manufacturerName, totalStockValue }) => ({
+    manufacturerName,
+    totalStockValue,
+  }));
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -88,4 +113,5 @@ module.exports = {
   getTotalStockValue,
   getStockValueByManufacturer,
   getManufacturers,
+  getStockValuesForAllManufacturers,
 };

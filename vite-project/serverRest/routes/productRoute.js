@@ -11,6 +11,7 @@ const {
   getManufacturers,
   getCriticalStock,
   getLowStock,
+  getStockValuesForAllManufacturers,
 } = require("../../serverRest/db/productService");
 
 // Get /manufacturers
@@ -40,6 +41,20 @@ router.get('/stock-value/:manufacturerId', async (req, res) => {
     res.status(500).json({ error: 'Failed to get stock value by manufacturerId' });
   }
 }); */
+
+// New route to get total stock value for each manufacturer
+router.get("/total-stock-value-for-all-manufacturers", async (req, res) => {
+  console.log("GET /api/products/total-stock-value-for-all-manufacturers");
+  try {
+    const stockValues = await getStockValuesForAllManufacturers();
+    res.status(200).json(stockValues);
+  } catch (error) {
+    console.error("Error getting stock values for all manufacturers", error);
+    res
+      .status(500)
+      .json({ error: "Failed to get stock values for all manufacturers" });
+  }
+});
 
 // GET /api/products/total-stock-value-by-manufacturer
 router.get("/total-stock-value-by-manufacturer", async (req, res) => {
