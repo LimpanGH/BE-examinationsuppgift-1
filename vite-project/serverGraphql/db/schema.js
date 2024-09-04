@@ -1,5 +1,5 @@
 // const Product = require('./models'); // Import the model, do not redeclare it.
-const { Product } = require('./models'); // Ensure this path is correct
+const { Product } = require("./models"); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -9,10 +9,10 @@ const {
   GraphQLList,
   GraphQLID,
   GraphQLFloat,
-} = require('graphql');
+} = require("graphql");
 
 const ContactType = new GraphQLObjectType({
-  name: 'Contact',
+  name: "Contact",
   fields: {
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -21,7 +21,7 @@ const ContactType = new GraphQLObjectType({
 });
 
 const ManufacturerType = new GraphQLObjectType({
-  name: 'Manufacturer',
+  name: "Manufacturer",
   fields: {
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -33,7 +33,7 @@ const ManufacturerType = new GraphQLObjectType({
 });
 
 const ProductType = new GraphQLObjectType({
-  name: 'Product',
+  name: "Product",
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -46,9 +46,17 @@ const ProductType = new GraphQLObjectType({
   },
 });
 
+const ManufacturerStockType = new GraphQLObjectType({
+  name: "ManufacturerStockValue",
+  fields: {
+    manufacturer: { type: GraphQLString },
+    totalStockValue: { type: GraphQLFloat },
+  },
+});
+
 // Define the root query
 const RootQuery = new GraphQLObjectType({
-  name: 'RootQueryType',
+  name: "RootQueryType",
   fields: {
     product: {
       type: ProductType,
@@ -61,6 +69,34 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
         return Product.find();
+      },
+    },
+    totalStockValueByManufacturer: {
+      type: new GraphQLList(ManufacturerStockType),
+      resolve() {
+        return Product.aggregate([
+          // { $match: { "manufacturer.name": "Feest LLC" } },
+          {
+            $match: {
+              amountInStock: { $exists: true, $ne: null },
+            },
+          },
+          {
+            $group: {
+              _id: "$manufacturer.name",
+              totalStockValue: {
+                $sum: { $multiply: ["$amountInStock", "$price"] },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: false,
+              manufacturer: "$_id",
+              totalStockValue: 1,
+            },
+          },
+        ]);
       },
     },
   },
