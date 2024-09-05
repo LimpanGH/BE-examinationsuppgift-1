@@ -1,5 +1,5 @@
 // const Product = require('./models'); // Import the model, do not redeclare it.
-const { Product } = require("./models"); // Ensure this path is correct
+const { Product } = require('./models'); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -10,10 +10,10 @@ const {
   GraphQLID,
   GraphQLFloat,
   GraphQLInputObjectType,
-} = require("graphql");
+} = require('graphql');
 
 const ContactType = new GraphQLObjectType({
-  name: "Contact",
+  name: 'Contact',
   fields: {
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -22,7 +22,7 @@ const ContactType = new GraphQLObjectType({
 });
 
 const ManufacturerType = new GraphQLObjectType({
-  name: "Manufacturer",
+  name: 'Manufacturer',
   fields: {
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -34,7 +34,7 @@ const ManufacturerType = new GraphQLObjectType({
 });
 
 const ProductType = new GraphQLObjectType({
-  name: "Product",
+  name: 'Product',
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -47,8 +47,15 @@ const ProductType = new GraphQLObjectType({
   },
 });
 
+const TotalStockValueType = new GraphQLObjectType({
+  name: 'TotalStockValue',
+  fields: {
+    totalValue: { type: GraphQLFloat },
+  },
+});
+
 const ManufacturerStockType = new GraphQLObjectType({
-  name: "ManufacturerStockValue",
+  name: 'ManufacturerStockValue',
   fields: {
     manufacturer: { type: GraphQLString },
     totalStockValue: { type: GraphQLFloat },
@@ -56,7 +63,7 @@ const ManufacturerStockType = new GraphQLObjectType({
 });
 
 const ManufacturerInputType = new GraphQLInputObjectType({
-  name: "ManufacturereInput",
+  name: 'ManufacturereInput',
   fields: () => ({
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -68,7 +75,7 @@ const ManufacturerInputType = new GraphQLInputObjectType({
 });
 
 const ContactInputType = new GraphQLInputObjectType({
-  name: "ContactInput",
+  name: 'ContactInput',
   fields: () => ({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -78,7 +85,7 @@ const ContactInputType = new GraphQLInputObjectType({
 
 // Define the root query
 const RootQuery = new GraphQLObjectType({
-  name: "RootQueryType",
+  name: 'RootQueryType',
   fields: {
     product: {
       type: ProductType,
@@ -93,6 +100,32 @@ const RootQuery = new GraphQLObjectType({
         return Product.find();
       },
     },
+    totalStockValue: {
+      type: TotalStockValueType,
+      resolve() {
+        return Product.aggregate([
+          {
+            $match: {
+              amountInStock: { $exists: true, $ne: null },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalValue: {
+                $sum: { $multiply: ['$amountInStock', '$price'] },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: false,
+              totalValue: 1,
+            },
+          },
+        ]).then((result) => result[0] || { totalValue: 0 });
+      },
+    },
     totalStockValueByManufacturer: {
       type: new GraphQLList(ManufacturerStockType),
       resolve() {
@@ -105,16 +138,16 @@ const RootQuery = new GraphQLObjectType({
           },
           {
             $group: {
-              _id: "$manufacturer.name",
+              _id: '$manufacturer.name',
               totalStockValue: {
-                $sum: { $multiply: ["$amountInStock", "$price"] },
+                $sum: { $multiply: ['$amountInStock', '$price'] },
               },
             },
           },
           {
             $project: {
               _id: false,
-              manufacturer: "$_id",
+              manufacturer: '$_id',
               totalStockValue: 1,
             },
           },
@@ -128,7 +161,7 @@ const RootQuery = new GraphQLObjectType({
 });
 
 const Mutation = new GraphQLObjectType({
-  name: "Mutation",
+  name: 'Mutation',
   fields: {
     updateProduct: {
       type: ProductType,
