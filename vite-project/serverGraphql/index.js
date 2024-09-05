@@ -18,26 +18,6 @@ app.use(
   })
 );
 
-// app.use(
-//   "/graphql",
-//   graphqlHTTP({
-//     Schema: buildSchema(`
-//         type RootQuery {
-//             }
-//             type RootMutation {
-//             }
-//                 schema {
-//                 query: Query
-//                 mutation: Mutation
-//                 }
-//     `),
-//     rootvalue: {},
-//     graphiql: true,
-//   })
-// );
-
 app.listen(port, () => {
   console.log(`Running a GraphQl server on port http://localhost:${port}`);
 });
-
-//app.use("/graphql", require("./routes/graphql"));
