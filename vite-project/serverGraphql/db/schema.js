@@ -156,6 +156,9 @@ const RootQuery = new GraphQLObjectType({
     },
     lowStockProducts: {
       type: new GraphQLList(ProductType),
+      resolve(parent, args) {
+        return Product.find({ amountInStock: { $lt: 10 } });
+      },
     },
   },
 });
