@@ -83,6 +83,9 @@ const ContactInputType = new GraphQLInputObjectType({
   }),
 });
 
+
+
+
 // Define the root query
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -166,35 +169,78 @@ const RootQuery = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
-    updateProduct: {
+    addProduct: {
       type: ProductType,
       args: {
-        id: { type: GraphQLID },
         name: { type: GraphQLString },
         sku: { type: GraphQLInt },
         description: { type: GraphQLString },
         price: { type: GraphQLFloat },
         category: { type: GraphQLString },
-        manufacturer: { type: ManufacturerInputType },
+        manufacturerName: { type: GraphQLString },
+        manufacturerCountry: { type: GraphQLString },
+        manufacturerWebsite: { type: GraphQLString },
+        manufacturerDescription: { type: GraphQLString },
+        manufacturerAddress: { type: GraphQLString },
+        contactName: { type: GraphQLString },
+        contactEmail: { type: GraphQLString },
+        contactPhone: { type: GraphQLString },
         amountInStock: { type: GraphQLInt },
       },
-      async resolve(parent, args) {
-        const updatedProduct = await Product.findByIdAndUpdate(
-          args.id,
-          {
-            $set: {
-              name: args.name,
-              sku: args.sku,
-              description: args.description,
-              price: args.price,
-              category: args.category,
-              manufacturer: args.manufacturer,
-              amountInStock: args.amountInStock,
+      resolve(parent, args) {
+        const newProduct = new Product({
+          name: args.name,
+          sku: args.sku,
+          description: args.description,
+          price: args.price,
+          category: args.category,
+          manufacturer: {
+            name: args.manufacturerName,
+            country: args.manufacturerCountry,
+            website: args.manufacturerWebsite,
+            description: args.manufacturerDescription,
+            address: args.manufacturerAddress,
+            contact: {
+              name: args.contactName,
+              email: args.contactEmail,
+              phone: args.contactPhone,
             },
           },
-          { new: true }
-        );
-        return updatedProduct;
+          amountInStock: args.amountInStock,
+        });
+
+        return newProduct.save();
+      },
+    },
+  updateProduct: {
+    type: ProductType,
+    args: {
+      id: { type: GraphQLID },
+      name: { type: GraphQLString },
+      sku: { type: GraphQLInt },
+      description: { type: GraphQLString },
+      price: { type: GraphQLFloat },
+      category: { type: GraphQLString },
+      manufacturer: { type: ManufacturerInputType },
+      amountInStock: { type: GraphQLInt },
+    },
+    async resolve(parent, args) {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        args.id,
+        {
+          $set: {
+            name: args.name,
+            sku: args.sku,
+            description: args.description,
+            price: args.price,
+            category: args.category,
+            manufacturer: args.manufacturer,
+            amountInStock: args.amountInStock,
+          },
+        },
+        { new: true }
+      );
+      return updatedProduct;
       },
     },
   },
