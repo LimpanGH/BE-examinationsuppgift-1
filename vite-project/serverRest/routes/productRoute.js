@@ -13,6 +13,51 @@ const {
   getLowStock,
   getStockValuesForAllManufacturers,
 } = require("../../serverRest/db/productService");
+const { body, validationResult } = require("express-validator");
+
+const validateProduct = [
+  // Validering av produkten
+  body("name")
+    .isString()
+    .withMessage("Name must be a string")
+    .isLength({ min: 2 })
+    .withMessage("Name must be at least 2 characters long"),
+  body("sku").isNumeric().withMessage("Sku must be a number"),
+  // .custom(async (value) => {
+  //   const skuNumber = await ProductModel.findOne({ sku: value });
+  //   if (skuNumber) {
+  //     throw new Error("Sku number already exists");
+  //   }
+  // }),
+  body("price").isNumeric().withMessage("Price must be a number"),
+  body("category").isString().withMessage("Category must be a string"),
+  body("amountInStock")
+    .isNumeric()
+    .withMessage("Amount in stock must be a number"),
+  // Validering av 'manufacturer' objekt
+  body("manufacturer.name")
+    .isString()
+    .withMessage("Manufacturer name must be a string"),
+  body("manufacturer.country")
+    .isString()
+    .withMessage("Manufacturer country must be a string"),
+  body("manufacturer.website")
+    .isURL()
+    .withMessage("Manufacturer website must be a valid URL"),
+  body("manufacturer.address")
+    .isString()
+    .withMessage("Manufacturer address must be a string"),
+
+  // Validering av 'contact' objekt inuti 'manufacturer'
+  body("manufacturer.contact.email")
+    .isEmail()
+    .withMessage("Email must be a valid email"),
+  body("manufacturer.contact.phone")
+    .isString()
+    .withMessage("Contact phone must be a string")
+    .isLength({ min: 5 })
+    .withMessage("Contact phone must be at least 5 characters long"),
+];
 
 // Get /manufacturers
 router.get("/manufacturers", async (req, res) => {
@@ -142,25 +187,38 @@ router.get("/", async (req, res) => {
 });
 
 // POST
-router.post("/", async (request, response) => {
+router.post("/", validateProduct, async (request, response) => {
+  const errors = validationResult(request);
+
+  if (!errors.isEmpty()) {
+    return response.status(400).json({ errors: errors });
+  }
   const product = request.body;
   const newProduct = await createProduct(product);
   response.status(201).json(newProduct);
 });
 
 //PUT - update product by ID
-router.put("/:id", async (req, res) => {
+router.put("/:id", validateProduct, async (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors });
+  }
   console.log("PUT /api/products/:id");
+
   try {
     const id = req.params.id;
     if (!id) {
-      res.status(400).send("ID is required");
-      return;
+      return res.status(400).send("ID is required");
     }
-
     const updatedProduct = req.body;
-    await updateProduct(id, updatedProduct);
-    res.status(200).json(updatedProduct);
+
+    const product = await updateProduct(id, updatedProduct);
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+    res.status(200).json(product);
   } catch (error) {
     res.status(500).send(error.message);
   }
