@@ -167,9 +167,6 @@ const RootQuery = new GraphQLObjectType({
         ]);
       },
     },
-
-    //criticalStockProducts: Retrieve a compact list of products with less than 5 units in stock,
-    //including the manufacturer’s name, contact name, phone, and email.
     criticalStockProducts: {
       type: new GraphQLList(CriticalProductsType),
       resolve() {
