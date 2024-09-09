@@ -1,4 +1,3 @@
-// const Product = require('./models'); // Import the model, do not redeclare it.
 const { Product } = require('./models'); // Ensure this path is correct
 
 const {
@@ -13,6 +12,7 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
+// Define the Contact Type
 const ContactType = new GraphQLObjectType({
   name: 'Contact',
   fields: {
@@ -22,6 +22,7 @@ const ContactType = new GraphQLObjectType({
   },
 });
 
+// Define the Manufacturer Type
 const ManufacturerType = new GraphQLObjectType({
   name: 'Manufacturer',
   fields: {
@@ -34,8 +35,9 @@ const ManufacturerType = new GraphQLObjectType({
   },
 });
 
+// Define the Product Type
 const ProductType = new GraphQLObjectType({
-  name: 'Product',
+  name: "Product",
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -62,12 +64,15 @@ const CriticalProductsType = new GraphQLObjectType({
 
 const TotalStockValueType = new GraphQLObjectType({
   name: 'TotalStockValue',
+  name: 'TotalStockValue',
   fields: {
     totalValue: { type: GraphQLFloat },
   },
 });
 
+// Define the ManufacturerStockValue Type
 const ManufacturerStockType = new GraphQLObjectType({
+  name: 'ManufacturerStockValue',
   name: 'ManufacturerStockValue',
   fields: {
     manufacturer: { type: GraphQLString },
@@ -75,7 +80,17 @@ const ManufacturerStockType = new GraphQLObjectType({
   },
 });
 
+const ManufacturerResultType = new GraphQLObjectType({
+  name: 'ManufacturerResult',
+  fields: {
+    manufacturers: { type: new GraphQLList(ManufacturerType) },
+    totalManufacturersCount: { type: GraphQLInt },
+  },
+});
+
+// Define the Manufacturer Input Type
 const ManufacturerInputType = new GraphQLInputObjectType({
+  name: 'ManufacturerInput',
   name: 'ManufacturereInput',
   fields: () => ({
     name: { type: GraphQLString },
@@ -87,7 +102,9 @@ const ManufacturerInputType = new GraphQLInputObjectType({
   }),
 });
 
+// Define the Contact Input Type
 const ContactInputType = new GraphQLInputObjectType({
+  name: 'ContactInput',
   name: 'ContactInput',
   fields: () => ({
     name: { type: GraphQLString },
@@ -96,10 +113,12 @@ const ContactInputType = new GraphQLInputObjectType({
   }),
 });
 
-// Define the root query
+// Define the Root Query
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
+  name: 'RootQueryType',
   fields: {
+    // Fetch a product by ID
     product: {
       type: ProductType,
       args: { id: { type: GraphQLID } },
@@ -107,12 +126,14 @@ const RootQuery = new GraphQLObjectType({
         return Product.findById(args.id);
       },
     },
+    // Fetch all products
     products: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
         return Product.find();
       },
     },
+    // Fetch total stock value
     totalStockValue: {
       type: TotalStockValueType,
       resolve() {
@@ -139,11 +160,11 @@ const RootQuery = new GraphQLObjectType({
         ]).then((result) => result[0] || { totalValue: 0 });
       },
     },
+    // Fetch total stock value by manufacturer
     totalStockValueByManufacturer: {
       type: new GraphQLList(ManufacturerStockType),
       resolve() {
         return Product.aggregate([
-          // { $match: { "manufacturer.name": "Feest LLC" } },
           {
             $match: {
               amountInStock: { $exists: true, $ne: null },
@@ -196,11 +217,47 @@ const RootQuery = new GraphQLObjectType({
         return Product.find({ amountInStock: { $lt: 10 } });
       },
     },
+    // Fetch all manufacturers, filtering out duplicates
+    manufacturers: {
+      type: ManufacturerResultType,
+      async resolve() {
+        const manufacturers = await Product.aggregate([
+          {
+            // Group by manufacturer name (or any other unique field)
+            $group: {
+              _id: '$manufacturer.name',
+              uniqueManufacturer: { $first: '$manufacturer' },
+            },
+          },
+          {
+            // Project the fields we want to return
+            $project: {
+              _id: false,
+              name: '$uniqueManufacturer.name',
+              country: '$uniqueManufacturer.country',
+              website: '$uniqueManufacturer.website',
+              description: '$uniqueManufacturer.description',
+              address: '$uniqueManufacturer.address',
+              contact: '$uniqueManufacturer.contact',
+            },
+          },
+        ]);
+    
+        // Calculate the total number of unique manufacturers
+        const totalManufacturersCount = manufacturers.length;
+        console.log(manufacturers.length);
+    
+        // Return the unique manufacturers and the count
+        return { manufacturers, totalManufacturersCount };
+      },
+    },
+    
   },
 });
 
-// Mutations
+// Define the Mutation
 const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
   name: 'Mutation',
   fields: {
     // Add product ---------
