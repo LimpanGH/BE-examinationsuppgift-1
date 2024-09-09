@@ -71,10 +71,14 @@ const getStockValueByManufacturer = async (manufacturerName) => {
 };
 
 const getManufacturers = async () => {
-  return ProductModel.find(
+  const manufacturers = await ProductModel.find(
     { manufacturer: { $exists: true } },
     { "manufacturer.name": true, _id: false }
   );
+  const uniqueManufacturers = [
+    ...new Set(manufacturers.map((product) => product.manufacturer.name)),
+  ];
+  return uniqueManufacturers;
 };
 
 const getStockValuesForAllManufacturers = async () => {
