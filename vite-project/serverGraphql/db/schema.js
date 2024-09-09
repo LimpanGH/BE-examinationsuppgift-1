@@ -1,4 +1,4 @@
-const { Product } = require("./models"); // Ensure this path is correct
+const { Product } = require('./models'); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -9,11 +9,11 @@ const {
   GraphQLID,
   GraphQLFloat,
   GraphQLInputObjectType,
-} = require("graphql");
+} = require('graphql');
 
 // Define the Contact Type
 const ContactType = new GraphQLObjectType({
-  name: "Contact",
+  name: 'Contact',
   fields: {
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -23,7 +23,7 @@ const ContactType = new GraphQLObjectType({
 
 // Define the Manufacturer Type
 const ManufacturerType = new GraphQLObjectType({
-  name: "Manufacturer",
+  name: 'Manufacturer',
   fields: {
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -36,7 +36,7 @@ const ManufacturerType = new GraphQLObjectType({
 
 // Define the Product Type
 const ProductType = new GraphQLObjectType({
-  name: "Product",
+  name: 'Product',
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -51,7 +51,7 @@ const ProductType = new GraphQLObjectType({
 
 // Define the TotalStockValue Type
 const TotalStockValueType = new GraphQLObjectType({
-  name: "TotalStockValue",
+  name: 'TotalStockValue',
   fields: {
     totalValue: { type: GraphQLFloat },
   },
@@ -59,16 +59,24 @@ const TotalStockValueType = new GraphQLObjectType({
 
 // Define the ManufacturerStockValue Type
 const ManufacturerStockType = new GraphQLObjectType({
-  name: "ManufacturerStockValue",
+  name: 'ManufacturerStockValue',
   fields: {
     manufacturer: { type: GraphQLString },
     totalStockValue: { type: GraphQLFloat },
   },
 });
 
+const ManufacturerResultType = new GraphQLObjectType({
+  name: 'ManufacturerResult',
+  fields: {
+    manufacturers: { type: new GraphQLList(ManufacturerType) },
+    totalManufacturersCount: { type: GraphQLInt },
+  },
+});
+
 // Define the Manufacturer Input Type
 const ManufacturerInputType = new GraphQLInputObjectType({
-  name: "ManufacturerInput",
+  name: 'ManufacturerInput',
   fields: () => ({
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -81,7 +89,7 @@ const ManufacturerInputType = new GraphQLInputObjectType({
 
 // Define the Contact Input Type
 const ContactInputType = new GraphQLInputObjectType({
-  name: "ContactInput",
+  name: 'ContactInput',
   fields: () => ({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -91,7 +99,7 @@ const ContactInputType = new GraphQLInputObjectType({
 
 // Define the Root Query
 const RootQuery = new GraphQLObjectType({
-  name: "RootQueryType",
+  name: 'RootQueryType',
   fields: {
     // Fetch a product by ID
     product: {
@@ -122,7 +130,7 @@ const RootQuery = new GraphQLObjectType({
             $group: {
               _id: null,
               totalValue: {
-                $sum: { $multiply: ["$amountInStock", "$price"] },
+                $sum: { $multiply: ['$amountInStock', '$price'] },
               },
             },
           },
@@ -147,16 +155,16 @@ const RootQuery = new GraphQLObjectType({
           },
           {
             $group: {
-              _id: "$manufacturer.name",
+              _id: '$manufacturer.name',
               totalStockValue: {
-                $sum: { $multiply: ["$amountInStock", "$price"] },
+                $sum: { $multiply: ['$amountInStock', '$price'] },
               },
             },
           },
           {
             $project: {
               _id: false,
-              manufacturer: "$_id",
+              manufacturer: '$_id',
               totalStockValue: 1,
             },
           },
@@ -172,47 +180,45 @@ const RootQuery = new GraphQLObjectType({
     },
     // Fetch all manufacturers, filtering out duplicates
     manufacturers: {
-      type: new GraphQLList(ManufacturerType),
+      type: ManufacturerResultType,
       async resolve() {
         const manufacturers = await Product.aggregate([
           {
+            // Group by manufacturer name (or any other unique field)
             $group: {
-              _id: {
-                name: "$manufacturer.name",
-                country: "$manufacturer.country",
-                website: "$manufacturer.website",
-                description: "$manufacturer.description",
-                address: "$manufacturer.address",
-                contact: "$manufacturer.contact",
-              },
-              uniqueManufacturer: { $first: "$manufacturer" }
-            }
+              _id: '$manufacturer.name',
+              uniqueManufacturer: { $first: '$manufacturer' },
+            },
           },
           {
+            // Project the fields we want to return
             $project: {
               _id: false,
-              name: "$uniqueManufacturer.name",
-              country: "$uniqueManufacturer.country",
-              website: "$uniqueManufacturer.website",
-              description: "$uniqueManufacturer.description",
-              address: "$uniqueManufacturer.address",
-              contact: "$uniqueManufacturer.contact",
-            }
-          }
+              name: '$uniqueManufacturer.name',
+              country: '$uniqueManufacturer.country',
+              website: '$uniqueManufacturer.website',
+              description: '$uniqueManufacturer.description',
+              address: '$uniqueManufacturer.address',
+              contact: '$uniqueManufacturer.contact',
+            },
+          },
         ]);
     
-        // Log the number of unique manufacturers
-        console.log('Antal tillverkare:', manufacturers.length);
+        // Calculate the total number of unique manufacturers
+        const totalManufacturersCount = manufacturers.length;
+        console.log(manufacturers.length);
     
-        return manufacturers;
-      }
-    }
+        // Return the unique manufacturers and the count
+        return { manufacturers, totalManufacturersCount };
+      },
+    },
+    
   },
 });
 
 // Define the Mutation
 const Mutation = new GraphQLObjectType({
-  name: "Mutation",
+  name: 'Mutation',
   fields: {
     // Add a product
     addProduct: {
