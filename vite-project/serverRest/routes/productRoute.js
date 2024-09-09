@@ -12,6 +12,7 @@ const {
   getCriticalStock,
   getLowStock,
   getStockValuesForAllManufacturers,
+  findExistingProduct,
 } = require("../../serverRest/db/productService");
 const { body, validationResult } = require("express-validator");
 
@@ -23,12 +24,6 @@ const validateProduct = [
     .isLength({ min: 2 })
     .withMessage("Name must be at least 2 characters long"),
   body("sku").isNumeric().withMessage("Sku must be a number"),
-  // .custom(async (value) => {
-  //   const skuNumber = await ProductModel.findOne({ sku: value });
-  //   if (skuNumber) {
-  //     throw new Error("Sku number already exists");
-  //   }
-  // }),
   body("price").isNumeric().withMessage("Price must be a number"),
   body("category").isString().withMessage("Category must be a string"),
   body("amountInStock")
@@ -188,14 +183,23 @@ router.get("/", async (req, res) => {
 
 // POST
 router.post("/", validateProduct, async (request, response) => {
-  const errors = validationResult(request);
+  const { sku } = request.body;
 
-  if (!errors.isEmpty()) {
-    return response.status(400).json({ errors: errors });
+  try {
+    const existingProduct = await findExistingProduct(sku);
+    if (existingProduct) {
+      return response.status(400).json({ errors: "Sku number already exists" });
+    }
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) {
+      return response.status(400).json({ errors: errors });
+    }
+    const product = request.body;
+    const newProduct = await createProduct(product);
+    response.status(201).json(newProduct);
+  } catch (error) {
+    response.status(500).send("Server error");
   }
-  const product = request.body;
-  const newProduct = await createProduct(product);
-  response.status(201).json(newProduct);
 });
 
 //PUT - update product by ID

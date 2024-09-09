@@ -106,6 +106,10 @@ const getStockValuesForAllManufacturers = async () => {
   }));
 };
 
+const findExistingProduct = async (sku) => {
+  return await ProductModel.findOne({ sku });
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -118,4 +122,5 @@ module.exports = {
   getStockValueByManufacturer,
   getManufacturers,
   getStockValuesForAllManufacturers,
+  findExistingProduct,
 };
