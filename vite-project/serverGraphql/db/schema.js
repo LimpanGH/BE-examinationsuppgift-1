@@ -1,4 +1,3 @@
-// const Product = require('./models'); // Import the model, do not redeclare it.
 const { Product } = require("./models"); // Ensure this path is correct
 
 const {
@@ -12,6 +11,7 @@ const {
   GraphQLInputObjectType,
 } = require("graphql");
 
+// Define the Contact Type
 const ContactType = new GraphQLObjectType({
   name: "Contact",
   fields: {
@@ -21,6 +21,7 @@ const ContactType = new GraphQLObjectType({
   },
 });
 
+// Define the Manufacturer Type
 const ManufacturerType = new GraphQLObjectType({
   name: "Manufacturer",
   fields: {
@@ -33,6 +34,7 @@ const ManufacturerType = new GraphQLObjectType({
   },
 });
 
+// Define the Product Type
 const ProductType = new GraphQLObjectType({
   name: "Product",
   fields: {
@@ -47,6 +49,7 @@ const ProductType = new GraphQLObjectType({
   },
 });
 
+// Define the TotalStockValue Type
 const TotalStockValueType = new GraphQLObjectType({
   name: "TotalStockValue",
   fields: {
@@ -54,6 +57,7 @@ const TotalStockValueType = new GraphQLObjectType({
   },
 });
 
+// Define the ManufacturerStockValue Type
 const ManufacturerStockType = new GraphQLObjectType({
   name: "ManufacturerStockValue",
   fields: {
@@ -62,8 +66,9 @@ const ManufacturerStockType = new GraphQLObjectType({
   },
 });
 
+// Define the Manufacturer Input Type
 const ManufacturerInputType = new GraphQLInputObjectType({
-  name: "ManufacturereInput",
+  name: "ManufacturerInput",
   fields: () => ({
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -74,6 +79,7 @@ const ManufacturerInputType = new GraphQLInputObjectType({
   }),
 });
 
+// Define the Contact Input Type
 const ContactInputType = new GraphQLInputObjectType({
   name: "ContactInput",
   fields: () => ({
@@ -83,13 +89,11 @@ const ContactInputType = new GraphQLInputObjectType({
   }),
 });
 
-
-
-
-// Define the root query
+// Define the Root Query
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
+    // Fetch a product by ID
     product: {
       type: ProductType,
       args: { id: { type: GraphQLID } },
@@ -97,12 +101,14 @@ const RootQuery = new GraphQLObjectType({
         return Product.findById(args.id);
       },
     },
+    // Fetch all products
     products: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
         return Product.find();
       },
     },
+    // Fetch total stock value
     totalStockValue: {
       type: TotalStockValueType,
       resolve() {
@@ -129,11 +135,11 @@ const RootQuery = new GraphQLObjectType({
         ]).then((result) => result[0] || { totalValue: 0 });
       },
     },
+    // Fetch total stock value by manufacturer
     totalStockValueByManufacturer: {
       type: new GraphQLList(ManufacturerStockType),
       resolve() {
         return Product.aggregate([
-          // { $match: { "manufacturer.name": "Feest LLC" } },
           {
             $match: {
               amountInStock: { $exists: true, $ne: null },
@@ -157,18 +163,58 @@ const RootQuery = new GraphQLObjectType({
         ]);
       },
     },
+    // Fetch low stock products
     lowStockProducts: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
         return Product.find({ amountInStock: { $lt: 10 } });
       },
     },
+    // Fetch all manufacturers, filtering out duplicates
+    manufacturers: {
+      type: new GraphQLList(ManufacturerType),
+      async resolve() {
+        const manufacturers = await Product.aggregate([
+          {
+            $group: {
+              _id: {
+                name: "$manufacturer.name",
+                country: "$manufacturer.country",
+                website: "$manufacturer.website",
+                description: "$manufacturer.description",
+                address: "$manufacturer.address",
+                contact: "$manufacturer.contact",
+              },
+              uniqueManufacturer: { $first: "$manufacturer" }
+            }
+          },
+          {
+            $project: {
+              _id: false,
+              name: "$uniqueManufacturer.name",
+              country: "$uniqueManufacturer.country",
+              website: "$uniqueManufacturer.website",
+              description: "$uniqueManufacturer.description",
+              address: "$uniqueManufacturer.address",
+              contact: "$uniqueManufacturer.contact",
+            }
+          }
+        ]);
+    
+        // Log the number of unique manufacturers
+        console.log('Antal tillverkare:', manufacturers.length);
+    
+        return manufacturers;
+      }
+    }
   },
 });
 
+// Define the Mutation
 const Mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: {
+    // Add a product
     addProduct: {
       type: ProductType,
       args: {
@@ -212,37 +258,39 @@ const Mutation = new GraphQLObjectType({
         return newProduct.save();
       },
     },
-  updateProduct: {
-    type: ProductType,
-    args: {
-      id: { type: GraphQLID },
-      name: { type: GraphQLString },
-      sku: { type: GraphQLInt },
-      description: { type: GraphQLString },
-      price: { type: GraphQLFloat },
-      category: { type: GraphQLString },
-      manufacturer: { type: ManufacturerInputType },
-      amountInStock: { type: GraphQLInt },
-    },
-    async resolve(parent, args) {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        args.id,
-        {
-          $set: {
-            name: args.name,
-            sku: args.sku,
-            description: args.description,
-            price: args.price,
-            category: args.category,
-            manufacturer: args.manufacturer,
-            amountInStock: args.amountInStock,
+    // Update a product by ID
+    updateProduct: {
+      type: ProductType,
+      args: {
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        sku: { type: GraphQLInt },
+        description: { type: GraphQLString },
+        price: { type: GraphQLFloat },
+        category: { type: GraphQLString },
+        manufacturer: { type: ManufacturerInputType },
+        amountInStock: { type: GraphQLInt },
+      },
+      async resolve(parent, args) {
+        const updatedProduct = await Product.findByIdAndUpdate(
+          args.id,
+          {
+            $set: {
+              name: args.name,
+              sku: args.sku,
+              description: args.description,
+              price: args.price,
+              category: args.category,
+              manufacturer: args.manufacturer,
+              amountInStock: args.amountInStock,
+            },
           },
-        },
-        { new: true }
-      );
-      return updatedProduct;
+          { new: true }
+        );
+        return updatedProduct;
       },
     },
+    // Delete a product by ID
     deleteProduct: {
       type: ProductType,
       args: { id: { type: GraphQLID } },
@@ -253,13 +301,7 @@ const Mutation = new GraphQLObjectType({
   },
 });
 
-
-
-
-
 module.exports = new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation,
 });
-
-
