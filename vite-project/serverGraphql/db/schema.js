@@ -9,6 +9,7 @@ const {
   GraphQLID,
   GraphQLFloat,
   GraphQLInputObjectType,
+  GraphQLScalarType,
 } = require('graphql');
 
 // Define the Contact Type
@@ -36,7 +37,7 @@ const ManufacturerType = new GraphQLObjectType({
 
 // Define the Product Type
 const ProductType = new GraphQLObjectType({
-  name: 'Product',
+  name: "Product",
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -49,8 +50,20 @@ const ProductType = new GraphQLObjectType({
   },
 });
 
-// Define the TotalStockValue Type
+const CriticalProductsType = new GraphQLObjectType({
+  name: 'CriticalProducts',
+  fields: {
+    name: { type: GraphQLString },
+    manufacturerName: { type: GraphQLString },
+    contactName: { type: GraphQLString },
+    contactPhone: { type: GraphQLString },
+    contactEmail: { type: GraphQLString },
+    amountInStock: { type: GraphQLInt },
+  },
+});
+
 const TotalStockValueType = new GraphQLObjectType({
+  name: 'TotalStockValue',
   name: 'TotalStockValue',
   fields: {
     totalValue: { type: GraphQLFloat },
@@ -59,6 +72,7 @@ const TotalStockValueType = new GraphQLObjectType({
 
 // Define the ManufacturerStockValue Type
 const ManufacturerStockType = new GraphQLObjectType({
+  name: 'ManufacturerStockValue',
   name: 'ManufacturerStockValue',
   fields: {
     manufacturer: { type: GraphQLString },
@@ -77,6 +91,7 @@ const ManufacturerResultType = new GraphQLObjectType({
 // Define the Manufacturer Input Type
 const ManufacturerInputType = new GraphQLInputObjectType({
   name: 'ManufacturerInput',
+  name: 'ManufacturereInput',
   fields: () => ({
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -90,6 +105,7 @@ const ManufacturerInputType = new GraphQLInputObjectType({
 // Define the Contact Input Type
 const ContactInputType = new GraphQLInputObjectType({
   name: 'ContactInput',
+  name: 'ContactInput',
   fields: () => ({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -99,6 +115,7 @@ const ContactInputType = new GraphQLInputObjectType({
 
 // Define the Root Query
 const RootQuery = new GraphQLObjectType({
+  name: 'RootQueryType',
   name: 'RootQueryType',
   fields: {
     // Fetch a product by ID
@@ -171,7 +188,29 @@ const RootQuery = new GraphQLObjectType({
         ]);
       },
     },
-    // Fetch low stock products
+    criticalStockProducts: {
+      type: new GraphQLList(CriticalProductsType),
+      resolve() {
+        return Product.aggregate([
+          {
+            $match: {
+              amountInStock: { $lt: 5 },
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              manufacturerName: '$manufacturer.name',
+              contactName: '$manufacturer.contact.name',
+              contactPhone: '$manufacturer.contact.phone',
+              contactEmail: '$manufacturer.contact.email',
+              amountInStock: 1,
+            },
+          },
+        ]);
+      },
+    },
+
     lowStockProducts: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
@@ -219,8 +258,9 @@ const RootQuery = new GraphQLObjectType({
 // Define the Mutation
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
+  name: 'Mutation',
   fields: {
-    // Add a product
+    // Add product ---------
     addProduct: {
       type: ProductType,
       args: {
@@ -264,7 +304,7 @@ const Mutation = new GraphQLObjectType({
         return newProduct.save();
       },
     },
-    // Update a product by ID
+    // Update product ---------
     updateProduct: {
       type: ProductType,
       args: {
@@ -296,7 +336,7 @@ const Mutation = new GraphQLObjectType({
         return updatedProduct;
       },
     },
-    // Delete a product by ID
+    // Delete product ---------
     deleteProduct: {
       type: ProductType,
       args: { id: { type: GraphQLID } },
