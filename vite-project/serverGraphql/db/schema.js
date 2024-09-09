@@ -1,5 +1,5 @@
 // const Product = require('./models'); // Import the model, do not redeclare it.
-const { Product } = require("./models"); // Ensure this path is correct
+const { Product } = require('./models'); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -10,10 +10,11 @@ const {
   GraphQLID,
   GraphQLFloat,
   GraphQLInputObjectType,
-} = require("graphql");
+  GraphQLScalarType,
+} = require('graphql');
 
 const ContactType = new GraphQLObjectType({
-  name: "Contact",
+  name: 'Contact',
   fields: {
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -22,7 +23,7 @@ const ContactType = new GraphQLObjectType({
 });
 
 const ManufacturerType = new GraphQLObjectType({
-  name: "Manufacturer",
+  name: 'Manufacturer',
   fields: {
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -34,7 +35,7 @@ const ManufacturerType = new GraphQLObjectType({
 });
 
 const ProductType = new GraphQLObjectType({
-  name: "Product",
+  name: 'Product',
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -47,15 +48,27 @@ const ProductType = new GraphQLObjectType({
   },
 });
 
+const CriticalProductsType = new GraphQLObjectType({
+  name: 'CriticalProducts',
+  fields: {
+    name: { type: GraphQLString },
+    manufacturerName: { type: GraphQLString },
+    contactName: { type: GraphQLString },
+    contactPhone: { type: GraphQLString },
+    contactEmail: { type: GraphQLString },
+    amountInStock: { type: GraphQLInt },
+  },
+});
+
 const TotalStockValueType = new GraphQLObjectType({
-  name: "TotalStockValue",
+  name: 'TotalStockValue',
   fields: {
     totalValue: { type: GraphQLFloat },
   },
 });
 
 const ManufacturerStockType = new GraphQLObjectType({
-  name: "ManufacturerStockValue",
+  name: 'ManufacturerStockValue',
   fields: {
     manufacturer: { type: GraphQLString },
     totalStockValue: { type: GraphQLFloat },
@@ -63,7 +76,7 @@ const ManufacturerStockType = new GraphQLObjectType({
 });
 
 const ManufacturerInputType = new GraphQLInputObjectType({
-  name: "ManufacturereInput",
+  name: 'ManufacturereInput',
   fields: () => ({
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -75,7 +88,7 @@ const ManufacturerInputType = new GraphQLInputObjectType({
 });
 
 const ContactInputType = new GraphQLInputObjectType({
-  name: "ContactInput",
+  name: 'ContactInput',
   fields: () => ({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -83,12 +96,9 @@ const ContactInputType = new GraphQLInputObjectType({
   }),
 });
 
-
-
-
 // Define the root query
 const RootQuery = new GraphQLObjectType({
-  name: "RootQueryType",
+  name: 'RootQueryType',
   fields: {
     product: {
       type: ProductType,
@@ -116,7 +126,7 @@ const RootQuery = new GraphQLObjectType({
             $group: {
               _id: null,
               totalValue: {
-                $sum: { $multiply: ["$amountInStock", "$price"] },
+                $sum: { $multiply: ['$amountInStock', '$price'] },
               },
             },
           },
@@ -141,22 +151,45 @@ const RootQuery = new GraphQLObjectType({
           },
           {
             $group: {
-              _id: "$manufacturer.name",
+              _id: '$manufacturer.name',
               totalStockValue: {
-                $sum: { $multiply: ["$amountInStock", "$price"] },
+                $sum: { $multiply: ['$amountInStock', '$price'] },
               },
             },
           },
           {
             $project: {
               _id: false,
-              manufacturer: "$_id",
+              manufacturer: '$_id',
               totalStockValue: 1,
             },
           },
         ]);
       },
     },
+    criticalStockProducts: {
+      type: new GraphQLList(CriticalProductsType),
+      resolve() {
+        return Product.aggregate([
+          {
+            $match: {
+              amountInStock: { $lt: 5 },
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              manufacturerName: '$manufacturer.name',
+              contactName: '$manufacturer.contact.name',
+              contactPhone: '$manufacturer.contact.phone',
+              contactEmail: '$manufacturer.contact.email',
+              amountInStock: 1,
+            },
+          },
+        ]);
+      },
+    },
+
     lowStockProducts: {
       type: new GraphQLList(ProductType),
       resolve(parent, args) {
@@ -166,9 +199,11 @@ const RootQuery = new GraphQLObjectType({
   },
 });
 
+// Mutations
 const Mutation = new GraphQLObjectType({
-  name: "Mutation",
+  name: 'Mutation',
   fields: {
+    // Add product ---------
     addProduct: {
       type: ProductType,
       args: {
@@ -212,37 +247,39 @@ const Mutation = new GraphQLObjectType({
         return newProduct.save();
       },
     },
-  updateProduct: {
-    type: ProductType,
-    args: {
-      id: { type: GraphQLID },
-      name: { type: GraphQLString },
-      sku: { type: GraphQLInt },
-      description: { type: GraphQLString },
-      price: { type: GraphQLFloat },
-      category: { type: GraphQLString },
-      manufacturer: { type: ManufacturerInputType },
-      amountInStock: { type: GraphQLInt },
-    },
-    async resolve(parent, args) {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        args.id,
-        {
-          $set: {
-            name: args.name,
-            sku: args.sku,
-            description: args.description,
-            price: args.price,
-            category: args.category,
-            manufacturer: args.manufacturer,
-            amountInStock: args.amountInStock,
+    // Update product ---------
+    updateProduct: {
+      type: ProductType,
+      args: {
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        sku: { type: GraphQLInt },
+        description: { type: GraphQLString },
+        price: { type: GraphQLFloat },
+        category: { type: GraphQLString },
+        manufacturer: { type: ManufacturerInputType },
+        amountInStock: { type: GraphQLInt },
+      },
+      async resolve(parent, args) {
+        const updatedProduct = await Product.findByIdAndUpdate(
+          args.id,
+          {
+            $set: {
+              name: args.name,
+              sku: args.sku,
+              description: args.description,
+              price: args.price,
+              category: args.category,
+              manufacturer: args.manufacturer,
+              amountInStock: args.amountInStock,
+            },
           },
-        },
-        { new: true }
-      );
-      return updatedProduct;
+          { new: true }
+        );
+        return updatedProduct;
       },
     },
+    // Delete product ---------
     deleteProduct: {
       type: ProductType,
       args: { id: { type: GraphQLID } },
