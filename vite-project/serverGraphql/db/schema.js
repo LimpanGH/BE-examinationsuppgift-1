@@ -1,5 +1,4 @@
-// const Product = require('./models'); // Import the model, do not redeclare it.
-const { Product } = require('./models'); // Ensure this path is correct
+const { Product } = require("./models"); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -11,10 +10,11 @@ const {
   GraphQLFloat,
   GraphQLInputObjectType,
   GraphQLScalarType,
-} = require('graphql');
+} = require("graphql");
 
+// Define the Contact Type
 const ContactType = new GraphQLObjectType({
-  name: 'Contact',
+  name: "Contact",
   fields: {
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -22,8 +22,9 @@ const ContactType = new GraphQLObjectType({
   },
 });
 
+// Define the Manufacturer Type
 const ManufacturerType = new GraphQLObjectType({
-  name: 'Manufacturer',
+  name: "Manufacturer",
   fields: {
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -34,8 +35,9 @@ const ManufacturerType = new GraphQLObjectType({
   },
 });
 
+// Define the Product Type
 const ProductType = new GraphQLObjectType({
-  name: 'Product',
+  name: "Product",
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -49,7 +51,7 @@ const ProductType = new GraphQLObjectType({
 });
 
 const CriticalProductsType = new GraphQLObjectType({
-  name: 'CriticalProducts',
+  name: "CriticalProducts",
   fields: {
     name: { type: GraphQLString },
     manufacturerName: { type: GraphQLString },
@@ -61,22 +63,35 @@ const CriticalProductsType = new GraphQLObjectType({
 });
 
 const TotalStockValueType = new GraphQLObjectType({
-  name: 'TotalStockValue',
+  name: "TotalStockValue",
+  name: "TotalStockValue",
   fields: {
     totalValue: { type: GraphQLFloat },
   },
 });
 
+// Define the ManufacturerStockValue Type
 const ManufacturerStockType = new GraphQLObjectType({
-  name: 'ManufacturerStockValue',
+  name: "ManufacturerStockValue",
+  name: "ManufacturerStockValue",
   fields: {
     manufacturer: { type: GraphQLString },
     totalStockValue: { type: GraphQLFloat },
   },
 });
 
+const ManufacturerResultType = new GraphQLObjectType({
+  name: "ManufacturerResult",
+  fields: {
+    manufacturers: { type: new GraphQLList(ManufacturerType) },
+    totalManufacturersCount: { type: GraphQLInt },
+  },
+});
+
+// Define the Manufacturer Input Type
 const ManufacturerInputType = new GraphQLInputObjectType({
-  name: 'ManufacturereInput',
+  name: "ManufacturerInput",
+  name: "ManufacturereInput",
   fields: () => ({
     name: { type: GraphQLString },
     country: { type: GraphQLString },
@@ -87,8 +102,10 @@ const ManufacturerInputType = new GraphQLInputObjectType({
   }),
 });
 
+// Define the Contact Input Type
 const ContactInputType = new GraphQLInputObjectType({
-  name: 'ContactInput',
+  name: "ContactInput",
+  name: "ContactInput",
   fields: () => ({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -96,10 +113,12 @@ const ContactInputType = new GraphQLInputObjectType({
   }),
 });
 
-// Define the root query
+// Define the Root Query
 const RootQuery = new GraphQLObjectType({
-  name: 'RootQueryType',
+  name: "RootQueryType",
+  name: "RootQueryType",
   fields: {
+    // Fetch a product by ID
     product: {
       type: ProductType,
       args: { id: { type: GraphQLID } },
@@ -107,12 +126,56 @@ const RootQuery = new GraphQLObjectType({
         return Product.findById(args.id);
       },
     },
+    // Fetch all products
     products: {
       type: new GraphQLList(ProductType),
-      resolve(parent, args) {
-        return Product.find();
+      args: {
+        limit: { type: GraphQLInt },
+        page: { type: GraphQLInt },
+        sortBy: { type: GraphQLString },
+        orderBy: { type: GraphQLString },
+        category: { type: GraphQLString },
+        manufacturerName: { type: GraphQLString },
+        amountInStock: { type: GraphQLInt },
+      },
+      async resolve(parent, args) {
+        try {
+          const limit = args.limit || 10; // Default to 10 if limit is not provided
+          const page = args.page || 1; // Default to 1 if page is not provided
+          const offset = (page - 1) * limit; // Calculate offset
+          const sortField = args.sortBy || "name"; // Default to 'name' if sortBy is not provided
+          const sortOrder = args.orderBy === "desc" ? -1 : 1; // Sort order: -1 for desc, 1 for asc
+
+          console.log(
+            `Fetching products with limit: ${limit}, page: ${page}, offset: ${offset}, sortField: ${sortField}, sortOrder: ${sortOrder}`
+          );
+          //Build filter object
+          const filter = {};
+          if (args.category) filter.category = args.category;
+          if (args.manufacturerName)
+            filter["manufacturer.name"] = args.manufacturerName;
+          if (args.amountInStock !== undefined)
+            filter.amountInStock = { $lte: args.amountInStock };
+
+          // Log the filter object for debugging
+          console.log("Filter object:", filter);
+
+          // Fetch products with pagination and sorting
+          const products = await Product.find(filter)
+            //.where("category")
+            //.equals(args.category)
+            .sort({ [sortField]: sortOrder })
+            .skip(offset)
+            .limit(limit);
+
+          return products;
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          throw new Error("Failed to fetch products");
+        }
       },
     },
+    // Fetch total stock value
     totalStockValue: {
       type: TotalStockValueType,
       resolve() {
@@ -126,7 +189,7 @@ const RootQuery = new GraphQLObjectType({
             $group: {
               _id: null,
               totalValue: {
-                $sum: { $multiply: ['$amountInStock', '$price'] },
+                $sum: { $multiply: ["$amountInStock", "$price"] },
               },
             },
           },
@@ -139,11 +202,11 @@ const RootQuery = new GraphQLObjectType({
         ]).then((result) => result[0] || { totalValue: 0 });
       },
     },
+    // Fetch total stock value by manufacturer
     totalStockValueByManufacturer: {
       type: new GraphQLList(ManufacturerStockType),
       resolve() {
         return Product.aggregate([
-          // { $match: { "manufacturer.name": "Feest LLC" } },
           {
             $match: {
               amountInStock: { $exists: true, $ne: null },
@@ -151,16 +214,16 @@ const RootQuery = new GraphQLObjectType({
           },
           {
             $group: {
-              _id: '$manufacturer.name',
+              _id: "$manufacturer.name",
               totalStockValue: {
-                $sum: { $multiply: ['$amountInStock', '$price'] },
+                $sum: { $multiply: ["$amountInStock", "$price"] },
               },
             },
           },
           {
             $project: {
               _id: false,
-              manufacturer: '$_id',
+              manufacturer: "$_id",
               totalStockValue: 1,
             },
           },
@@ -179,10 +242,10 @@ const RootQuery = new GraphQLObjectType({
           {
             $project: {
               name: 1,
-              manufacturerName: '$manufacturer.name',
-              contactName: '$manufacturer.contact.name',
-              contactPhone: '$manufacturer.contact.phone',
-              contactEmail: '$manufacturer.contact.email',
+              manufacturerName: "$manufacturer.name",
+              contactName: "$manufacturer.contact.name",
+              contactPhone: "$manufacturer.contact.phone",
+              contactEmail: "$manufacturer.contact.email",
               amountInStock: 1,
             },
           },
@@ -196,12 +259,47 @@ const RootQuery = new GraphQLObjectType({
         return Product.find({ amountInStock: { $lt: 10 } });
       },
     },
+    // Fetch all manufacturers, filtering out duplicates
+    manufacturers: {
+      type: ManufacturerResultType,
+      async resolve() {
+        const manufacturers = await Product.aggregate([
+          {
+            // Group by manufacturer name (or any other unique field)
+            $group: {
+              _id: "$manufacturer.name",
+              uniqueManufacturer: { $first: "$manufacturer" },
+            },
+          },
+          {
+            // Project the fields we want to return
+            $project: {
+              _id: false,
+              name: "$uniqueManufacturer.name",
+              country: "$uniqueManufacturer.country",
+              website: "$uniqueManufacturer.website",
+              description: "$uniqueManufacturer.description",
+              address: "$uniqueManufacturer.address",
+              contact: "$uniqueManufacturer.contact",
+            },
+          },
+        ]);
+
+        // Calculate the total number of unique manufacturers
+        const totalManufacturersCount = manufacturers.length;
+        console.log(manufacturers.length);
+
+        // Return the unique manufacturers and the count
+        return { manufacturers, totalManufacturersCount };
+      },
+    },
   },
 });
 
-// Mutations
+// Define the Mutation
 const Mutation = new GraphQLObjectType({
-  name: 'Mutation',
+  name: "Mutation",
+  name: "Mutation",
   fields: {
     // Add product ---------
     addProduct: {
@@ -247,7 +345,6 @@ const Mutation = new GraphQLObjectType({
         return newProduct.save();
       },
     },
-    // Update product ---------
     updateProduct: {
       type: ProductType,
       args: {
