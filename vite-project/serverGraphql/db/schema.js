@@ -129,52 +129,50 @@ const RootQuery = new GraphQLObjectType({
     // Fetch all products
     products: {
       type: new GraphQLList(ProductType),
-        args: {
-          limit: { type: GraphQLInt },
-          page: { type: GraphQLInt },
-          sortBy: { type: GraphQLString },
-          orderBy: { type: GraphQLString },
-          category: { type: GraphQLString },
-          manufacturerName: { type: GraphQLString },
-          amountInStock: { type: GraphQLInt },
-        },
-        async resolve(parent, args) {
-          try {
-            const limit = args.limit || 10; // Default to 10 if limit is not provided
-            const page = args.page || 1; // Default to 1 if page is not provided
-            const offset = (page - 1) * limit; // Calculate offset
-            const sortField = args.sortBy || "name"; // Default to 'name' if sortBy is not provided
-            const sortOrder = args.orderBy === "desc" ? -1 : 1; // Sort order: -1 for desc, 1 for asc
-  
-            console.log(
-              `Fetching products with limit: ${limit}, page: ${page}, offset: ${offset}, sortField: ${sortField}, sortOrder: ${sortOrder}`
-            );
-            //Build filter object
-            const filter = {};
-            if (args.category) filter.category = args.category;
-            if (args.manufacturerName)
-              filter["manufacturer.name"] = args.manufacturerName;
-            if (args.amountInStock !== undefined)
-              filter.amountInStock = { $lte: args.amountInStock };
-  
-            // Log the filter object for debugging
-            console.log("Filter object:", filter);
-  
-            // Fetch products with pagination and sorting
-            const products = await Product.find(filter)
-              //.where("category")
-              //.equals(args.category)
-              .sort({ [sortField]: sortOrder })
-              .skip(offset)
-              .limit(limit);
-  
-            return products;
-          } catch (error) {
-            console.error("Error fetching products:", error);
-            throw new Error("Failed to fetch products");
-          }
-        },
+      args: {
+        limit: { type: GraphQLInt },
+        page: { type: GraphQLInt },
+        sortBy: { type: GraphQLString },
+        orderBy: { type: GraphQLString },
+        category: { type: GraphQLString },
+        manufacturerName: { type: GraphQLString },
+        amountInStock: { type: GraphQLInt },
       },
+      async resolve(parent, args) {
+        try {
+          const limit = args.limit || 10; // Default to 10 if limit is not provided
+          const page = args.page || 1; // Default to 1 if page is not provided
+          const offset = (page - 1) * limit; // Calculate offset
+          const sortField = args.sortBy || "name"; // Default to 'name' if sortBy is not provided
+          const sortOrder = args.orderBy === "desc" ? -1 : 1; // Sort order: -1 for desc, 1 for asc
+
+          console.log(
+            `Fetching products with limit: ${limit}, page: ${page}, offset: ${offset}, sortField: ${sortField}, sortOrder: ${sortOrder}`
+          );
+          //Build filter object
+          const filter = {};
+          if (args.category) filter.category = args.category;
+          if (args.manufacturerName)
+            filter["manufacturer.name"] = args.manufacturerName;
+          if (args.amountInStock !== undefined)
+            filter.amountInStock = { $lte: args.amountInStock };
+
+          // Log the filter object for debugging
+          console.log("Filter object:", filter);
+
+          // Fetch products with pagination and sorting
+          const products = await Product.find(filter)
+            //.where("category")
+            //.equals(args.category)
+            .sort({ [sortField]: sortOrder })
+            .skip(offset)
+            .limit(limit);
+
+          return products;
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          throw new Error("Failed to fetch products");
+        }
       },
     },
     // Fetch total stock value
