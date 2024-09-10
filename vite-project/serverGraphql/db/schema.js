@@ -294,3 +294,5 @@ module.exports = new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation,
 });
+
+// tag bort kommentaren sen
