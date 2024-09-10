@@ -1,4 +1,4 @@
-const { Product } = require("./models"); // Ensure this path is correct
+const { Product } = require('./models'); // Ensure this path is correct
 
 const {
   GraphQLObjectType,
@@ -10,7 +10,7 @@ const {
   GraphQLFloat,
   GraphQLInputObjectType,
   GraphQLScalarType,
-} = require("graphql");
+} = require('graphql');
 
 // Define the Contact Type
 const ContactType = new GraphQLObjectType({
@@ -51,7 +51,7 @@ const ProductType = new GraphQLObjectType({
 });
 
 const CriticalProductsType = new GraphQLObjectType({
-  name: "CriticalProducts",
+  name: 'CriticalProducts',
   fields: {
     name: { type: GraphQLString },
     manufacturerName: { type: GraphQLString },
@@ -79,7 +79,7 @@ const ManufacturerStockType = new GraphQLObjectType({
 });
 
 const UniqueManufacturerResultType = new GraphQLObjectType({
-  name: "ManufacturerResult",
+  name: 'ManufacturerResult',
   fields: {
     manufacturers: { type: new GraphQLList(ManufacturerType) },
     totalManufacturersCount: { type: GraphQLInt },
@@ -101,8 +101,7 @@ const ManufacturerInputType = new GraphQLInputObjectType({
 
 // Define the Contact Input Type
 const ContactInputType = new GraphQLInputObjectType({
-  
-  name: "ContactInput",
+  name: 'ContactInput',
   fields: () => ({
     name: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -139,8 +138,8 @@ const RootQuery = new GraphQLObjectType({
           const limit = args.limit || 10; // Default to 10 if limit is not provided
           const page = args.page || 1; // Default to 1 if page is not provided
           const offset = (page - 1) * limit; // Calculate offset
-          const sortField = args.sortBy || "name"; // Default to 'name' if sortBy is not provided
-          const sortOrder = args.orderBy === "desc" ? -1 : 1; // Sort order: -1 for desc, 1 for asc
+          const sortField = args.sortBy || 'name'; // Default to 'name' if sortBy is not provided
+          const sortOrder = args.orderBy === 'desc' ? -1 : 1; // Sort order: -1 for desc, 1 for asc
 
           console.log(
             `Fetching products with limit: ${limit}, page: ${page}, offset: ${offset}, sortField: ${sortField}, sortOrder: ${sortOrder}`
@@ -149,12 +148,12 @@ const RootQuery = new GraphQLObjectType({
           const filter = {};
           if (args.category) filter.category = args.category;
           if (args.manufacturerName)
-            filter["manufacturer.name"] = args.manufacturerName;
+            filter['manufacturer.name'] = args.manufacturerName;
           if (args.amountInStock !== undefined)
             filter.amountInStock = { $lte: args.amountInStock };
 
           // Log the filter object for debugging
-          console.log("Filter object:", filter);
+          console.log('Filter object:', filter);
 
           // Fetch products with pagination and sorting
           const products = await Product.find(filter)
@@ -166,8 +165,8 @@ const RootQuery = new GraphQLObjectType({
 
           return products;
         } catch (error) {
-          console.error("Error fetching products:", error);
-          throw new Error("Failed to fetch products");
+          console.error('Error fetching products:', error);
+          throw new Error('Failed to fetch products');
         }
       },
     },
@@ -238,10 +237,10 @@ const RootQuery = new GraphQLObjectType({
           {
             $project: {
               name: 1,
-              manufacturerName: "$manufacturer.name",
-              contactName: "$manufacturer.contact.name",
-              contactPhone: "$manufacturer.contact.phone",
-              contactEmail: "$manufacturer.contact.email",
+              manufacturerName: '$manufacturer.name',
+              contactName: '$manufacturer.contact.name',
+              contactPhone: '$manufacturer.contact.phone',
+              contactEmail: '$manufacturer.contact.email',
               amountInStock: 1,
             },
           },
@@ -263,20 +262,20 @@ const RootQuery = new GraphQLObjectType({
           {
             // Group by manufacturer name (or any other unique field)
             $group: {
-              _id: "$manufacturer.name",
-              uniqueManufacturer: { $first: "$manufacturer" },
+              _id: '$manufacturer.name',
+              uniqueManufacturer: { $first: '$manufacturer' },
             },
           },
           {
             // Project the fields we want to return
             $project: {
               _id: false,
-              name: "$uniqueManufacturer.name",
-              country: "$uniqueManufacturer.country",
-              website: "$uniqueManufacturer.website",
-              description: "$uniqueManufacturer.description",
-              address: "$uniqueManufacturer.address",
-              contact: "$uniqueManufacturer.contact",
+              name: '$uniqueManufacturer.name',
+              country: '$uniqueManufacturer.country',
+              website: '$uniqueManufacturer.website',
+              description: '$uniqueManufacturer.description',
+              address: '$uniqueManufacturer.address',
+              contact: '$uniqueManufacturer.contact',
             },
           },
         ]);
@@ -386,7 +385,3 @@ module.exports = new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation,
 });
-
-
-
-
