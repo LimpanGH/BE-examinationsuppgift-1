@@ -391,3 +391,5 @@ module.exports = new GraphQLSchema({
   query: RootQuery,
   mutation: Mutation,
 });
+
+/// End of schema.js
