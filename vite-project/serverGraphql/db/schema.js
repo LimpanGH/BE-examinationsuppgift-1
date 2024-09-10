@@ -80,7 +80,7 @@ const ManufacturerStockType = new GraphQLObjectType({
   },
 });
 
-const ManufacturerResultType = new GraphQLObjectType({
+const UniqueManufacturerResultType = new GraphQLObjectType({
   name: "ManufacturerResult",
   fields: {
     manufacturers: { type: new GraphQLList(ManufacturerType) },
@@ -260,8 +260,8 @@ const RootQuery = new GraphQLObjectType({
       },
     },
     // Fetch all manufacturers, filtering out duplicates
-    manufacturers: {
-      type: ManufacturerResultType,
+    uniqueManufacturers: {
+      type: UniqueManufacturerResultType,
       async resolve() {
         const manufacturers = await Product.aggregate([
           {

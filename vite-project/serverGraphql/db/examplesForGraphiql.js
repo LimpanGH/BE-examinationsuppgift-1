@@ -23,6 +23,14 @@
 //     }
 //   }
 
+//todo list all unique manufacturers 
+// query{uniqueManufacturers {
+//     totalManufacturersCount
+//     manufacturers {
+//       name   
+//     }
+//   }}
+
 //todo Get critical stock products
 // {
 //     criticalStockProducts {
