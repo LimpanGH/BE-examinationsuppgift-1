@@ -1,21 +1,28 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./index.css";
+import RootRoute from "./routes/RootRoute"
 import HomeRoute from "./routes/HomeRoute";
 import ErrorRoute from "./routes/ErrorRoute";
-import "./index.css";
+import ManufacturerRoute from "./routes/ManufacturerRoute";
+
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomeRoute />,
+    element: <RootRoute />,
     errorElement: <ErrorRoute />,
-        children: [
+    children: [
       {
-        // path: "",
-        // element: ,
+        index: true,
+        element: <HomeRoute />,
       },
-    ]
+      {
+        path: "manufacturer",
+        element: <ManufacturerRoute />,
+      },
+    ],
   },
 ]);
 
