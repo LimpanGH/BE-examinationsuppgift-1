@@ -1,0 +1,12 @@
+.links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.link-item {
+    padding: 0 1rem 0 1rem;
+    text-decoration: none;
+    color: black;
+}

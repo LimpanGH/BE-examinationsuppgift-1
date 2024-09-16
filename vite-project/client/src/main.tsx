@@ -6,11 +6,12 @@ import RootRoute from "./routes/RootRoute"
 import HomeRoute from "./routes/HomeRoute";
 import ErrorRoute from "./routes/ErrorRoute";
 import ManufacturerRoute from "./routes/ManufacturerRoute";
+import GraphManufacturerRoute from "./routes/GraphManufacturerRoute"
 
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <RootRoute />,
     errorElement: <ErrorRoute />,
     children: [
@@ -19,8 +20,12 @@ const router = createBrowserRouter([
         element: <HomeRoute />,
       },
       {
-        path: "manufacturer",
+        path: 'manufacturer',
         element: <ManufacturerRoute />,
+      },
+      {
+        path: 'graphmanufacturer',
+        element: <GraphManufacturerRoute />,
       },
     ],
   },
