@@ -1,8 +1,7 @@
-import style from './ManufacturerRoute.module.css';
 import { useEffect, useState } from 'react';
-// import { Manufacturer } from '../types/types';
+import { RestStockValuesForAllManufacturers } from '../types/types';
 
-const ManufacturerRoute = () => {
+const StockValuesForAllManufacturersRoute = () => {
   const [manufacturers, setManufacturers] = useState([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +10,7 @@ const ManufacturerRoute = () => {
     const fetchManufacturers = async () => {
       try {
         const response = await fetch(
-          'http://localhost:3000/products/manufacturers'
+          'http://localhost:3000/products/total-stock-value-for-all-manufacturers'
         );
         if (!response.ok) {
           throw new Error('Network response not ok');
@@ -33,16 +32,22 @@ const ManufacturerRoute = () => {
 
   return (
     <main>
-      <h2>Manufacturers REST</h2>
+      <h2>Stock values for all manufacturers REST</h2>
       {loading && <p>Error: {error}</p>}
-      <ul style={{ listStyleType: 'none' }}>
-        {manufacturers.map((manufacturer) => (
-          <li key={manufacturer} className={style['product-list']}>
-            <p>{manufacturer}</p>
-          </li>
-        ))}
+      <ul>
+        {manufacturers.map(
+          (manufacturer: RestStockValuesForAllManufacturers, index) => (
+            <li
+              key={index}
+              style={{ border: '2px solid green', listStyleType: 'none' }}
+            >
+              <p>{manufacturer.manufacturerName}</p>
+              <p>Stock value: {manufacturer.totalStockValue}</p>
+            </li>
+          )
+        )}
       </ul>
     </main>
   );
 };
-export default ManufacturerRoute;
+export default StockValuesForAllManufacturersRoute;

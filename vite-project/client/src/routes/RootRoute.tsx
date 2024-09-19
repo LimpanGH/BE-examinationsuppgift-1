@@ -31,8 +31,21 @@ function Root() {
               </Link>
             </li>
             <li>
-              <Link to='/stock' title='Stock' className={style['link-item']}>
-                Stock
+              <Link
+                to='/restStockValuesForAllManufacturers'
+                title='restStockValuesForAllManufacturers'
+                className={style['link-item']}
+              >
+                RestStockValuesForAllManufacturers
+              </Link>
+            </li>
+            <li>
+              <Link
+                to='/graphStockValuesForAllManufacturers'
+                title='graphStockValuesForAllManufacturers'
+                className={style['link-item']}
+              >
+                GraphQLStockValuesForAllManufacturers
               </Link>
             </li>
           </ul>
