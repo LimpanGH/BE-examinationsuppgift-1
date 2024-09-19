@@ -18,3 +18,16 @@ export type Product = {
     };
   };
 };
+
+export type Manufacturer = {
+  name: string;
+  country: string;
+  website: string;
+  description: string;
+  address: string;
+  contact: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+};

@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
-import { Product } from "../types/types";
+import { useEffect, useState } from 'react';
+import { Product } from '../types/types';
+import style from './HomeRoute.module.css';
 
 const HomeRoute: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchId, setSearchId] = useState<string>("");
+  const [searchId, setSearchId] = useState<string>('');
   const [searchedProduct, setSearchedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch("http://localhost:3000/products");
+        const response = await fetch('http://localhost:3000/products');
         if (!response.ok) {
-          throw new Error("Network response not ok");
+          throw new Error('Network response not ok');
         }
         const data: Product[] = await response.json();
         //console.log(data);
@@ -22,7 +23,7 @@ const HomeRoute: React.FC = () => {
         if (error instanceof Error) {
           setError(error.message);
         } else {
-          setError("An unknown error occurred");
+          setError('An unknown error occurred');
         }
       } finally {
         setLoading(false);
@@ -35,7 +36,7 @@ const HomeRoute: React.FC = () => {
     try {
       const response = await fetch(`http://localhost:3000/products/${id}`);
       if (!response.ok) {
-        throw new Error("Network response not ok");
+        throw new Error('Network response not ok');
       }
       const data: Product = await response.json();
       setSearchedProduct(data);
@@ -43,7 +44,7 @@ const HomeRoute: React.FC = () => {
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError("An unknown error occurred");
+        setError('An unknown error occurred');
       }
     }
   };
@@ -61,15 +62,15 @@ const HomeRoute: React.FC = () => {
       <h1>Product List</h1>
       <div>
         <form onSubmit={handleSearch}>
-          <label htmlFor="productId">Search by ID:</label>
+          <label htmlFor='productId'>Search by ID:</label>
           <input
-            id="productId"
-            type="text"
+            id='productId'
+            type='text'
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
-            placeholder="Enter product ID"
+            placeholder='Enter product ID'
           />
-          <button type="submit">Search</button>
+          <button type='submit'>Search</button>
         </form>
       </div>
 
@@ -89,7 +90,7 @@ const HomeRoute: React.FC = () => {
       {loading && <p>Error: {error}</p>}
       <ul>
         {products.map((product) => (
-          <li key={product.sku}>
+          <li key={product.sku} className={style['product-list']}>
             <h2>{product.name}</h2>
             <p>{product.description}</p>
             <p>Price: {product.price}</p>
