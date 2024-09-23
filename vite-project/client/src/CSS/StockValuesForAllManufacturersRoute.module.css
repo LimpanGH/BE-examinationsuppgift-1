@@ -1,0 +1,10 @@
+.product-list {
+    border: black 1px solid;
+    max-width: 30rem;
+    margin: 0 auto;
+    text-align: left;
+    padding-left: 2rem;
+    font-size: large;
+    background-color: aqua;
+    list-style: none;
+  }
