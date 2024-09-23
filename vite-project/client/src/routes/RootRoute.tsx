@@ -1,5 +1,5 @@
 import { Outlet, Link } from 'react-router-dom';
-import style from './RootRoute.module.css';
+import style from '../CSS/RootRoute.module.css';
 
 function Root() {
   return (

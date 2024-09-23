@@ -1,4 +1,4 @@
-import style from './ManufacturerRoute.module.css';
+import style from '../CSS/ManufacturerRoute.module.css';
 import { useEffect, useState } from 'react';
 // import { Manufacturer } from '../types/types';
 
@@ -36,9 +36,9 @@ const ManufacturerRoute = () => {
       <h2>Manufacturers REST</h2>
       {loading && <p>Error: {error}</p>}
       <ul style={{ listStyleType: 'none' }}>
-        {manufacturers.map((manufacturer) => (
+        {manufacturers.map((manufacturer, index) => (
           <li key={manufacturer} className={style['product-list']}>
-            <p>{manufacturer}</p>
+            <p>{index +1}. {manufacturer}</p>
           </li>
         ))}
       </ul>
@@ -46,3 +46,5 @@ const ManufacturerRoute = () => {
   );
 };
 export default ManufacturerRoute;
+
+
