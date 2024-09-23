@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Product } from '../types/types';
 import style from './HomeRoute.module.css';
+import TotalStockValueByManufacturer from '../components/TotalStockValueByManufacturer';
 
 const HomeRoute: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,7 +13,7 @@ const HomeRoute: React.FC = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch('http://localhost:3000/products');
+        const response = await fetch('http://localhost:3000/products?limit=50');
         if (!response.ok) {
           throw new Error('Network response not ok');
         }
@@ -58,6 +59,7 @@ const HomeRoute: React.FC = () => {
 
   return (
     <main>
+      <TotalStockValueByManufacturer />
       {/* Search Form */}
       <h1>Product List</h1>
       <div>

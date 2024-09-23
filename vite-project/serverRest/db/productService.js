@@ -5,8 +5,8 @@ const createProduct = async (product) => {
   return newProduct.save();
 };
 
-const getProducts = async (product) => {
-  return ProductModel.find();
+const getProducts = async (limit) => {
+  return ProductModel.find().limit(limit);
 };
 
 const getLowStock = async () => {
@@ -59,9 +59,9 @@ const getTotalStockValue = async () => {
   return stockValue;
 }; */
 
-const getStockValueByManufacturer = async (manufacturerName) => {
+const getStockValueByManufacturer = async (manufacturer) => {
   const products = await ProductModel.find({
-    "manufacturer.name": manufacturerName,
+    manufacturer: { $regex: manufacturer, $options: 'i' }, // Case-insensitive partial match
   });
   const stockValue = products.reduce(
     (total, product) => total + product.price * product.amountInStock,

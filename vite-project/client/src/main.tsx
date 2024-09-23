@@ -7,6 +7,8 @@ import HomeRoute from "./routes/HomeRoute";
 import ErrorRoute from "./routes/ErrorRoute";
 import ManufacturerRoute from "./routes/ManufacturerRoute";
 import GraphManufacturerRoute from "./routes/GraphManufacturerRoute"
+import StockValuesForAllManufacturersRoute from "./routes/StockValuesForAllManufacturersRoute.tsx";
+import GraphStockValuesForAllManufacturersRoute from "./routes/GraphStockValuesForAllManufacturersRoute.tsx";
 
 
 const router = createBrowserRouter([
@@ -26,6 +28,14 @@ const router = createBrowserRouter([
       {
         path: 'graphmanufacturer',
         element: <GraphManufacturerRoute />,
+      },
+      {
+        path: 'restStockvaluesforallmanufacturers',
+        element: <StockValuesForAllManufacturersRoute />,
+      },
+      {
+        path: 'graphStockvaluesforallmanufacturers',
+        element: <GraphStockValuesForAllManufacturersRoute />,
       },
     ],
   },

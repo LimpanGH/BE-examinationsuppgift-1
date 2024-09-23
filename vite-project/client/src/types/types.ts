@@ -31,3 +31,13 @@ export type Manufacturer = {
     phone: string;
   };
 };
+
+export type RestStockValuesForAllManufacturers = {
+  manufacturerName: string;
+  totalStockValue: number;
+};
+
+export type GraphQLStockValuesForAllManufacturers = {
+  manufacturer: string;
+  totalStockValue: number;
+};
