@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 // import { Manufacturer } from '../types/types';
 import { Product } from '../types/types';
+import style from '../CSS/GraphManufacturerRoute.module.css';
 
 const ManufacturerRoute = () => {
   const [data, setData] = useState<Product[]>([]);
@@ -48,8 +49,8 @@ const ManufacturerRoute = () => {
       {loading && <p>Loading, if error {error}</p>}
       <ul style={{ listStyleType: 'none' }}>
         {data.map((manufacturers, index) => (
-          <li key={index}>
-            <p>{manufacturers.name}</p>
+          <li key={index} className={style['product-list']}>
+            <p>{index +1}. {manufacturers.name}</p>
           </li>
         ))}
       </ul>
@@ -57,3 +58,4 @@ const ManufacturerRoute = () => {
   );
 };
 export default ManufacturerRoute;
+
