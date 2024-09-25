@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GraphQLStockValuesForAllManufacturers } from '../types/types';
-import style from '../CSS/GraphStockValuesForAllManufacturersRoute.module.css'
+import style from '../CSS/GraphStockValuesForAllManufacturersRoute.module.css';
 
 const GraphStockValuesForAllManufacturersRoute = () => {
   const [manufacturers, setManufacturers] = useState([]);
@@ -48,11 +48,10 @@ const GraphStockValuesForAllManufacturersRoute = () => {
       <ul>
         {manufacturers.map(
           (manufacturer: GraphQLStockValuesForAllManufacturers, index) => (
-            <li
-              key={index}
-              className={style['product-list']}
-            >
-              <p>{index +1}. {manufacturer.manufacturer}</p>
+            <li key={index} className={style['product-list']}>
+              <p>
+                {index + 1}. {manufacturer.manufacturer}
+              </p>
               <p>Stock value: {manufacturer.totalStockValue}</p>
             </li>
           )

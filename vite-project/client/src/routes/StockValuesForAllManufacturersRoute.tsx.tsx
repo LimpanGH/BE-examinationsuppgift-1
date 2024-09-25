@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { RestStockValuesForAllManufacturers } from '../types/types';
-import style   from '../css/StockValuesForAllManufacturersRoute.module.css';
+import style from '../css/StockValuesForAllManufacturersRoute.module.css';
 
 const StockValuesForAllManufacturersRoute = () => {
   const [manufacturers, setManufacturers] = useState([]);
@@ -38,11 +38,10 @@ const StockValuesForAllManufacturersRoute = () => {
       <ul>
         {manufacturers.map(
           (manufacturer: RestStockValuesForAllManufacturers, index) => (
-            <li
-              key={index}
-              className={style['product-list']}
-            >
-              <p>{index +1}. {manufacturer.manufacturerName}</p>
+            <li key={index} className={style['product-list']}>
+              <p>
+                {index + 1}. {manufacturer.manufacturerName}
+              </p>
               <p>Stock value: {manufacturer.totalStockValue}</p>
             </li>
           )

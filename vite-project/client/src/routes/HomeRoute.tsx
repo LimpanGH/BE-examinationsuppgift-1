@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Product } from '../types/types';
-import style from './HomeRoute.module.css';
+import style from '../css/HomeRoute.module.css';
 import TotalStockValueByManufacturer from '../components/TotalStockValueByManufacturer';
 
 const HomeRoute: React.FC = () => {

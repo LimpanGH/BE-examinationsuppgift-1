@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import styles from '../CSS/TotalStockvalueByManufacturer.module.css';
 
 function TotalStockValueByManufacturer() {
   const [manufacturer, setManufacturer] = useState(''); // State to hold the manufacturer input
@@ -33,16 +34,15 @@ function TotalStockValueByManufacturer() {
         setStockValue(result.stockValue);
       } catch (error) {
         if (error instanceof Error) {
-            console.error('Error fetching data:', error.message);
+          console.error('Error fetching data:', error.message);
           setError(error.message);
         }
-
       }
     }
     fetchData();
   }, [manufacturer]); // Fetch data when manufacturer changes
   return (
-    <div>
+    <div className={styles['flex']}>
       <p>Total Stock Value by Manufacturer</p>
       <input
         type='text'
