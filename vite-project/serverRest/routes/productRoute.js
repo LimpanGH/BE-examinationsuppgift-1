@@ -103,11 +103,11 @@ router.get('/total-stock-value-by-manufacturer', async (req, res) => {
     const manufacturer = req.query.manufacturer;
     if (!manufacturer) {
       res.status(400).send('Manufacturer is required');
-      return;
     }
-
-    const stockValue = await getStockValueByManufacturer(manufacturer);
-    res.status(200).json({ stockValue });
+    const stockValueByManufacturer = await getStockValueByManufacturer(
+      manufacturer
+    );
+    res.status(200).json({ stockValue: stockValueByManufacturer });
   } catch (error) {
     console.error('Error getting stock value by manufacturer', error);
     res

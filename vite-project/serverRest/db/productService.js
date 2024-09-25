@@ -1,4 +1,4 @@
-const ProductModel = require("./models/productModel");
+const ProductModel = require('./models/productModel');
 
 const createProduct = async (product) => {
   const newProduct = new ProductModel(product);
@@ -11,13 +11,13 @@ const getProducts = async (limit) => {
 
 const getLowStock = async () => {
   const products = await ProductModel.find({ amountInStock: { $lt: 30 } });
-  console.log("Low stock products:", products);
+  console.log('Low stock products:', products);
   return products;
 };
 
 const getCriticalStock = async () => {
   const products = await ProductModel.find({ amountInStock: { $lt: 3 } });
-  console.log("Critical stock products:", products);
+  console.log('Critical stock products:', products);
   return products;
 };
 
@@ -59,9 +59,9 @@ const getTotalStockValue = async () => {
   return stockValue;
 }; */
 
-const getStockValueByManufacturer = async (manufacturer) => {
+const getStockValueByManufacturer = async (manufacturerName) => {
   const products = await ProductModel.find({
-    manufacturer: { $regex: manufacturer, $options: 'i' }, // Case-insensitive partial match
+    'manufacturer.name': { $regex: new RegExp(manufacturerName, 'i') }, // Case-insensitive partial match
   });
   const stockValue = products.reduce(
     (total, product) => total + product.price * product.amountInStock,
@@ -73,7 +73,7 @@ const getStockValueByManufacturer = async (manufacturer) => {
 const getManufacturers = async () => {
   const manufacturers = await ProductModel.find(
     { manufacturer: { $exists: true } },
-    { "manufacturer.name": true, _id: false }
+    { 'manufacturer.name': true, _id: false }
   );
   const uniqueManufacturers = [
     ...new Set(manufacturers.map((product) => product.manufacturer.name)),
@@ -85,16 +85,16 @@ const getStockValuesForAllManufacturers = async () => {
   const stockValues = await ProductModel.aggregate([
     {
       $group: {
-        _id: "$manufacturer.name",
+        _id: '$manufacturer.name',
         totalStockValue: {
-          $sum: { $multiply: ["$price", "$amountInStock"] },
+          $sum: { $multiply: ['$price', '$amountInStock'] },
         },
       },
     },
     {
       $project: {
         _id: 0,
-        manufacturerName: "$_id",
+        manufacturerName: '$_id',
         totalStockValue: 1,
       },
     },
