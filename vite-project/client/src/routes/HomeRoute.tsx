@@ -80,25 +80,36 @@ const HomeRoute: React.FC = () => {
       {searchedProduct && (
         <div>
           <h2>Search Results</h2>
-          <h3>{searchedProduct.name}</h3>
-          <p>{searchedProduct.description}</p>
-          <p>Price: {searchedProduct.price}</p>
-          <p>Category: {searchedProduct.category}</p>
-          <p>In Stock: {searchedProduct.amountInStock}</p>
-          <p>Manufacturer: {searchedProduct.manufacturer.name}</p>
+          <div className={style.container}>
+            <div
+              className={`${style.card} ${style.alignCenter} ${style.lightGray}`}
+            >
+              <h3>{searchedProduct.name}</h3>
+              <p>{searchedProduct.category}</p>
+              <p>{searchedProduct.description}</p>
+              <div className={style.flex}>
+                <p>Price: {searchedProduct.price}</p>
+                <p>In Stock: {searchedProduct.amountInStock}</p>
+              </div>
+              <p>By: {searchedProduct.manufacturer.name}</p>
+            </div>
+          </div>
         </div>
       )}
 
+      {/* The product list */}
       {loading && <p>Error: {error}</p>}
-      <ul>
+      <ul className={`${style.ul} ${style.container}`}>
         {products.map((product) => (
-          <li key={product.sku} className={style['product-list']}>
+          <li key={product.sku} className={style.card}>
             <h2>{product.name}</h2>
+            <p className={style.right}>{product.category}</p>
             <p>{product.description}</p>
-            <p>Price: {product.price}</p>
-            <p>Category: {product.category}</p>
-            <p>In Stock: {product.amountInStock}</p>
-            <p>Manufacturer: {product.manufacturer.name}</p>
+            <div className={style.flex}>
+              <p>Price: {product.price}</p>
+              <p>In Stock: {product.amountInStock}</p>
+            </div>
+            <p>By: {product.manufacturer.name}</p>
           </li>
         ))}
       </ul>
